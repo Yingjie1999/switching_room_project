@@ -1,188 +1,191 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-# import pytesseract
-import os
 import cv2
 import numpy as np
-from mycode import meas_point_1
-# import recognition
-import split
-import matplotlib.pyplot as plt
-import pandas as pd
-import ultis
-# import xlsxwriter
+# import pytesseract
+import toexcel
+import meas_point_1
+import meas_point_2
+import meas_point_3
+import meas_point_4
+import meas_point_5
+import meas_point_6
+import meas_point_7
+import meas_point_8
+import meas_point_9
+import meas_point_10
+import meas_point_11
+import meas_point_12
+import meas_point_13
+import meas_point_14
+import meas_point_15
+import meas_point_16
+import meas_point_17
+import meas_point_18
+import meas_point_19
+import meas_point_20
+import meas_point_21
+import meas_point_22
+import meas_point_23
+import meas_point_24
+import meas_point_25
+import meas_point_26
+import meas_point_27
+import meas_point_28
+import meas_point_29
+import meas_point_30
+import meas_point_31
+import meas_point_32
+import meas_point_33
+import meas_point_34
+import meas_point_35
+import meas_point_36
+import meas_point_37
+import meas_point_38
+import meas_point_39
+import meas_point_40
+import meas_point_41
+import meas_point_42
 
-from PIL import Image
+import xlwt
 
-def OCR_digit(image_path):
-    # 导入OCR安装路径，如果设置了系统环境，就可以不用设置了
-    # pytesseract.pytesseract.tesseract_cmd = r"D:\Program Files\Tesseract-OCR\tesseract.exe"
-    # 打开要识别的图片
-
-    src = cv2.imread("C:\\Users\\SONG\\Desktop\\CIAIC\\code\\ocr\\images\\da.jpg")
-    cv2.namedWindow("input",cv2.WINDOW_AUTOSIZE)
-    cv2.imshow("input",src)
-    # b,g,r=cv2.split(src)
-    # cv2.imshow("B",b)
-    # cv2.imshow("G",g)
-    # cv2.imshow("R",r)
-    gray = cv2.cvtColor(src,cv2.COLOR_BGR2GRAY)
-    cv2.imshow("GRAY",gray)
-
-    ret,img = cv2.threshold(gray,120,255,cv2.THRESH_BINARY)####其中80适用于数码管数据  而且这个阈值可以通过直方图法或者平均法来进行自适应
-    cv2.imshow("ret",img)
-
-    turn = ~img            #####LCD屏不需要取反，即二值化之后原来就是白底黑字
-    cv2.imshow("turn",turn)
-
-    # # 提取图中红色部分
-    # hsv = cv2.cvtColor(src,cv2.COLOR_BGR2HSV)
-    # low_hsv = np.array([0,43,46])
-    # high_hsv = np.array([10,255,255])
-    # extract = cv2.inRange(hsv,lowerb=low_hsv,upperb=high_hsv)
-    text = pytesseract.image_to_string(img, lang='eng',config="--psm 7")
-    # text = pytesseract.image_to_string(image)
-    print('chulihou:')
-    print(text)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-def OCR_lcd():
-    lcd_image = cv2.imread("C:\\Users\\SONG\\Desktop\\CIAIC\\code\\ocr\\images\\obj1.jpg")
-    cv2.namedWindow("input", cv2.WINDOW_AUTOSIZE)
-    cv2.imshow("input", lcd_image)
-
-    gray = cv2.cvtColor(lcd_image, cv2.COLOR_BGR2GRAY)
-    cv2.imshow("GRAY", gray)
-
-    mean, stddev = cv2.meanStdDev(gray)
-    # ret, image_bin = cv2.threshold(gray, mean[0][0]-10, 255, cv2.THRESH_BINARY)
-    ret , image_bin = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)
-    cv2.imshow("image_bin",image_bin)
-
-    image_turn = ~image_bin
-    image_show = image_turn
-    cv2.imshow("image_turn",image_turn)
-
-    contours, hierarchy = cv2.findContours(image_turn, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    # cv2.imshow("image_find:",image_find)
-    boundRect = []
-    # bounds_ = []
-    # boundRect_tran = []
-    # print(contours)
-    # print(np.shape(contours))
-    for c in contours:
-        x, y, w, h = cv2.boundingRect(c)
-        # 一个筛选，可能需要看识别条件而定，有待优化
-        if h / w > 1:
-            boundRect.append([x, y, w, h])
-            # 画一个方形标注一下，看看圈的范围是否正确
-            image_bound  = cv2.rectangle(image_turn, (x, y), (x+w, y+h), 255, 2)
-    cv2.imshow("bound",image_bound)
-    print("boundRect:",boundRect)
-    print(np.shape(boundRect))
-    #最好处理黑底白字
-    text = pytesseract.image_to_string(image_turn, lang='eng', config='--psm 7')#lang='chi_sim'是设置为中文识别，
-    print("lcd_text:",text)
-
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-
+def tran(list):
+    list_str = str(list).replace("[", "").replace("]", "")
+    print(eval(f"[{list_str}]"))
 
 
 
 if __name__ == '__main__':
+    Total_list = []
+    file_name = 'C:\\Users\\SONG\\desktop\\images3\\'
+    excel_save_path = 'D:\\test.xls'
+    file_name1_1 = file_name + '1-1.JPG'
+    file_name1_2 = file_name + '1-2.JPG'
+    file_name2_1 = file_name + '2-1.JPG'
+    file_name2_2 = file_name + '2-2.JPG'
+    file_name3_1 = file_name + '3-1.JPG'
+    file_name3_2 = file_name + '3-2.JPG'
+    file_name4_1 = file_name + '4-1.JPG'
+    file_name4_2 = file_name + '4-2.JPG'
+    file_name5_1 = file_name + '5-1.JPG'
+    file_name5_2 = file_name + '5-2.JPG'
+    file_name6_1 = file_name + '6-1.JPG'
+    file_name6_2 = file_name + '6-2.JPG'
+    file_name7_1 = file_name + '7-1.JPG'
+    file_name7_2 = file_name + '7-2.JPG'
+    file_name8_1 = file_name + '8-1.JPG'
+    file_name8_2 = file_name + '8-2.JPG'
+    file_name9_1 = file_name + '9-1.JPG'
+    file_name9_2 = file_name + '9-2.JPG'
+    file_name10_1 = file_name + '10-1.JPG'
+    file_name10_2 = file_name + '10-2.JPG'
+    file_name11_1 = file_name + '11-1.JPG'
+    file_name11_2 = file_name + '11-2.JPG'
+    file_name12_1 = file_name + '12-1.JPG'
+    file_name12_2 = file_name + '12-2.JPG'
+    file_name13_1 = file_name + '13-1.JPG'
+    file_name13_2 = file_name + '13-2.JPG'
+    file_name14_1 = file_name + '14-1.JPG'
+    file_name14_2 = file_name + '14-2.JPG'
+    file_name15_1 = file_name + '15-1.JPG'
+    file_name15_2 = file_name + '15-2.JPG'
+    file_name16_1 = file_name + '16-1.JPG'
+    file_name16_2 = file_name + '16-2.JPG'
+    file_name17_1 = file_name + '17-1.JPG'
+    file_name17_2 = file_name + '17-2.JPG'
+    file_name18_1 = file_name + '18-1.JPG'
+    file_name18_2 = file_name + '18-2.JPG'
+    file_name19_1 = file_name + '19-1.JPG'
+    file_name19_2 = file_name + '19-2.JPG'
+    file_name20_1 = file_name + '20-1.JPG'
+    file_name20_2 = file_name + '20-2.JPG'
+    file_name21_1 = file_name + '21-1.JPG'
+    file_name21_2 = file_name + '21-2.JPG'
+    file_name22_1 = file_name + '22-1.JPG'
+    file_name22_2 = file_name + '22-2.JPG'
+    file_name23_1 = file_name + '23-1.JPG'
+    file_name23_2 = file_name + '23-2.JPG'
+    file_name24_1 = file_name + '24-1.JPG'
+    file_name24_2 = file_name + '24-2.JPG'
+    file_name25_1 = file_name + '25-1.JPG'
+    file_name25_2 = file_name + '25-2.JPG'
+    file_name25_3 = file_name + '25-3.JPG'
+    file_name26_1 = file_name + '456.jpg'
+    file_name26_2 = file_name + '26-2.JPG'
+    file_name26_3 = file_name + '26-3.JPG'
+    file_name27_1 = file_name + '123.jpg'
+    file_name27_2 = file_name + '27-2.JPG'
+    file_name28_1 = file_name + '28-1.JPG'
+    file_name28_2 = file_name + '28-2.JPG'
+    file_name29_1 = file_name + '29-1.JPG'
+    file_name29_2 = file_name + '29-2.JPG'
+    file_name30_1 = file_name + '30-1.JPG'
+    file_name30_2 = file_name + '30-2.JPG'
+    file_name31_1 = file_name + '31-1.JPG'
+    file_name31_2 = file_name + '31-2.JPG'
+    file_name32_1 = file_name + '32-1.JPG'
+    file_name32_2 = file_name + '32-2.JPG'
+    file_name33_1 = file_name + '33-1.JPG'
+    file_name33_2 = file_name + '33-2.JPG'
+    file_name34_1 = file_name + '34-1.JPG'
+    file_name34_2 = file_name + '34-2.JPG'
+    file_name35_1 = file_name + '35-1.JPG'
+    file_name35_2 = file_name + '35-2.JPG'
+    file_name36_1 = file_name + '36-1.JPG'
+    file_name36_2 = file_name + '36-2.JPG'
+    file_name37_1 = file_name + '37-1.JPG'
+    file_name37_2 = file_name + '37-2.JPG'
+    file_name38_1 = file_name + '38-1.JPG'
+    file_name38_2 = file_name + '38-2.JPG'
+    file_name39_1 = file_name + '39-1.JPG'
+    file_name39_2 = file_name + '39-2.JPG'
+    file_name40_1 = file_name + '40-1.JPG'
+    file_name40_2 = file_name + '40-2.JPG'
+    file_name41_1 = file_name + '41-1.JPG'
+    file_name41_2 = file_name + '41-2.JPG'
+    file_name42_1 = file_name + '42-1.JPG'
+    # Total_list.append(meas_point_1.Point_one(file_name1_1, file_name1_2))
+    # Total_list.append(meas_point_2.Point_two(file_name2_1, file_name2_2))
+    # Total_list.append(meas_point_3.Point_three(file_name3_1,file_name3_2))
+    # Total_list.append(meas_point_4.Point_four(file_name4_1, file_name4_2))
+    # Total_list.append(meas_point_5.Point_five(file_name5_1, file_name5_2))
+    # Total_list.append(meas_point_6.Point_six(file_name6_1, file_name6_2))
+    # Total_list.append(meas_point_7.Point_seven(file_name7_1,file_name7_2))
+    # Total_list.append(meas_point_8.Point_eight(file_name8_1,file_name8_2))
+    # Total_list.append(meas_point_9.Point_nine(file_name9_1,file_name9_2))
+    # Total_list.append(meas_point_10.Point_ten(file_name10_1, file_name10_2))
+    # Total_list.append(meas_point_11.Point_eleven(file_name11_1, file_name11_2))
+    # Total_list.append(meas_point_12.Point_twelve(file_name12_1, file_name12_2))
+    # Total_list.append(meas_point_13.Point_thirteen(file_name13_1, file_name13_2))
+    # Total_list.append(meas_point_14.Point_fourteen(file_name14_1, file_name14_2))
+    # Total_list.append(meas_point_15.Point_fifteen(file_name15_1, file_name15_2))
+    # Total_list.append(meas_point_16.Point_sixteen(file_name16_1, file_name16_2))
+    # Total_list.append(meas_point_17.Point_seventeen(file_name17_1, file_name17_2))
+    # Total_list.append(meas_point_18.Point_eighteen(file_name18_1, file_name18_2))
+    # Total_list.append(meas_point_19.Point_nineteen(file_name19_1, file_name19_2))
+    # Total_list.append(meas_point_20.Point_twenty(file_name20_1, file_name20_2))
+    # Total_list.append(meas_point_21.Point_twenty_one(file_name21_1, file_name21_2))
+    # Total_list.append(meas_point_22.Point_twenty_two(file_name22_1, file_name22_2))
+    # Total_list.append(meas_point_23.Point_twenty_three(file_name23_1, file_name23_2))
+    # Total_list.append(meas_point_24.Point_twenty_four(file_name24_1, file_name24_2))
+    # Total_list.append(meas_point_25.Point_twenty_five(file_name25_1, file_name25_2, file_name25_3))
+    Total_list.append(meas_point_26.Point_twenty_six(file_name26_1, file_name26_2, file_name26_3))
+    # Total_list.append(meas_point_27.Point_twenty_seven(file_name27_1, file_name27_2))
+    # Total_list.append(meas_point_28.Point_twenty_eight(file_name28_1,file_name28_2))
+    # Total_list.append(meas_point_29.Point_twenty_nine(file_name29_1,file_name29_2))
+    # Total_list.append(meas_point_30.Point_thirty(file_name30_1))
+    # Total_list.append(meas_point_31.Point_thirty_one(file_name31_1,file_name31_2))
+    # Total_list.append(meas_point_32.Point_thirty_two(file_name32_1,file_name32_2))
+    # Total_list.append(meas_point_33.Point_thirty_three(file_name33_1, file_name33_2))
+    # Total_list.append(meas_point_34.Point_thirty_four(file_name34_1,file_name34_2))
+    # Total_list.append(meas_point_35.Point_thirty_five(file_name35_1, file_name35_2))
+    # Total_list.append(meas_point_36.Point_thirty_six(file_name36_1, file_name36_2))
+    # Total_list.append(meas_point_37.Point_thirty_seven(file_name37_1, file_name37_2))
+    # Total_list.append(meas_point_38.Point_thirty_eight(file_name38_1, file_name38_2))
+    # Total_list.append(meas_point_39.Point_thirty_nine(file_name39_1, file_name39_2))
+    # Total_list.append(meas_point_40.Point_fourty(file_name40_1, file_name40_2))
+    # Total_list.append(meas_point_41.Point_fourty_one(file_name41_1,file_name41_2))
+    # Total_list.append(meas_point_42.Point_fourty_two(file_name42_1))
 
-
-    # Data = {'id':1}
-    # # OCR_lcd()
-    # serial_file_name = 'C:\\Users\\SONG\\Desktop\\2021-08\\1.jpg'
-    # serial_image = split.detect_and_split_3(serial_file_name)
-    # serial_list = []
-    # serial_list.append(recognition.serial_recogn(serial_image))
-    # Data.update(ultis.ser_list_to_dic(serial_list))
-    #
-    # lcd_file_name = 'C:\\Users\\SONG\\Desktop\\2021-08\\2.jpg'
-    # lcd_image =  split.detect_and_split_2(lcd_file_name)
-    # lcd_list = []
-    # lcd_list.append(recognition.lcd_recogn('./images/test4.jpg'))
-    # Data.update(ultis.lcd_list_to_dic(lcd_list[0]))
-    #
-    # digit_file_name = 'C:\\Users\\SONG\\Desktop\\2021-08\\3.jpg'
-    # digit_image = split.detect_and_split_1(digit_file_name)
-    # digit_list = []
-    # for i in range(len(digit_image)):
-    #     # cv2.imshow('obj_digit{}'.format(i),digit_image[i])
-    #     digit_list.append(recognition.digit_detect(digit_image[i]))
-    # Data.update(ultis.digit_list_to_dic(digit_list))
-    #
-    # print(Data)
-    #
-    # # Data.to_excel("./output/pvuv_pandas.xls", index=False)
-    # file_name = 'C:\\Users\\SONG\\Desktop\\2021-08\\data.xlsx'
-    # ultis.pd_toexcel(Data, file_name)
-    # print('-----------------')
-    # print('识别成功，数据已保存！')
-    # print('-----------------')
-    #
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-
-
-    # lcd_file_name = './images/lcd.png'
-    # lcd_image = cv2.imread(lcd_file_name)
-    # cv2.imshow('input',lcd_image)
-    # lcd_img =[]
-    # lcd_list = []
-    # h = lcd_image.shape[0] // 4
-    # for i in range(4):
-    #     quarter = lcd_image[i * h:(i + 1) * h, 0:lcd_image.shape[1]]  # 这里要注意一下，后面需要把边框给去除
-    #     lcd_img.append(quarter)
-    #     cv2.imshow('obj_lcd{}'.format(i),lcd_img[i])
-    #     lcd_list.append(recognition.lcd_detect(lcd_img[i]))
-    # Data.update(ultis.lcd_list_to_dic(lcd_list))
-
-
-    # lcd_file_name = './images/lcd.png'
-    # lcd_image = split.detect_and_split_2(lcd_file_name)
-    # # lcd_image = cv2.imread()
-    # lcd_list = []
-    # for i in range(len(lcd_image)):
-    #     # cv2.imshow('obj_lcd{}'.format(i), lcd_image[i])
-    #     # lcd_image[i] = cv2.morphologyEx(lcd_image[i], cv2.MORPH_OPEN, kernel,iterations=1)
-    #     # cv2.imshow('obj_lcd{}'.format(i), lcd_image[i])
-    #     lcd_list.append(recognition.lcd_detect(lcd_image[i]))
-    # Data.update(ultis.lcd_list_to_dic(lcd_list))
-    # print('lcd_list:',lcd_list)
-
-    # digit_file_name = './images/4.jpg'
-    # digit_image = split.detect_and_split_1(digit_file_name)
-    # digit_list = []
-    # for i in range(len(digit_image)):
-    #     # cv2.imshow('obj_digit{}'.format(i),digit_image[i])
-    #     digit_list.append(recognition.digit_detect(digit_image[i]))
-    # Data.update(ultis.digit_list_to_dic(digit_list))
-
-    file_name = 'E:\\desktop\\images2\\1-2.JPG'
-    img = meas_point_1.find_squares(file_name)
-    # img = split.find_squares(file_name)
-    # img = cv2.imread(file_name)
-    deng = meas_point_1.handcar_recog(img)
-    print("last:",deng)
-
-    # canny = cv2.Canny(gray,150,300)
-    # cv2.namedWindow("canny", cv2.WINDOW_NORMAL)
-    # cv2.resizeWindow("canny", 1000, 750)
-    # cv2.imshow("canny", canny)
-
+    print("Total:",Total_list)
+    # toexcel.write_file(Total_list, excel_save_path)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
-
-
-
-
