@@ -833,8 +833,8 @@ def tran(list):
     list_str = str(list).replace("[", "").replace("]", "")
     return eval(f"[{list_str}]")
 
-def Point_two(file_name1, file_name2):
-    img1 = cv2.imread(file_name1)
+def Point_two(file_name2, code_info):
+    # img1 = cv2.imread(file_name1)
     img2 = cv2.imread(file_name2)
     Point_list = []
     # num_img = dispatchNum_split(img1)

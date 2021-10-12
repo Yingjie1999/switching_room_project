@@ -50,7 +50,13 @@ def default():
 # 字典中不同的值对应不同的自定义函数
 switcher = {
     '1': meas_point_1.Point_one,
-    # 2: get_function_2,
+    '2': meas_point_2.Point_two,
+    '3': meas_point_3.Point_three,
+    '4': meas_point_4.Point_four,
+    '5': meas_point_3.Point_three,
+    '6': meas_point_6.Point_six,
+    '7': meas_point_3.Point_three,
+    '11':meas_point_3.Point_three
     # 3: get_function_3
 }
 # 根据flag的值决定执行哪一个函数，如果输入的值在字典中没有，则执行get_default函数
@@ -58,6 +64,7 @@ switcher = {
 if __name__ == '__main__':
     file_path = 'C:\\Users\\SONG\\Desktop\\image6\\'
     file_list = code_recog.getfileorder(file_path)
+    Total_list = []
 
     for i in range(len(file_list)):
         image_path = file_path + file_list[i]
@@ -67,9 +74,31 @@ if __name__ == '__main__':
             # 根据flag的值决定执行哪一个函数，如果输入的值在字典中没有，则执行get_default函数
             print("识别到二维码，为 "+ code_info.parsed)
             output = switcher[code_info.parsed](image_path, code_info)
+            output.append(code_info.parsed)
+            Total_list.append(output)
 
+    # 判断两张相同测点照片哪张涵盖信息多
+    for i in range(len(Total_list)-1):
+        if Total_list[i][-1] == Total_list[i+1][-1]:
+            sum1 = 0 ;sum2 = 0
+            for j in Total_list[i]:
+                if j:
+                    sum1 = sum1+1
+            len1 = len(Total_list[i]) - sum1
+            print("len1",len1)
+            for j in Total_list[i+1]:
+                if j:
+                    sum2 = sum2+1
+            len2 = len(Total_list[i+1]) - sum2
+            print("len2:",len2)
+            if len1 <= len2:
+                Total_list.pop(i+1)
+            else:
+                Total_list.pop(i)
 
+    # for i in range(len(Total_list)):
+        # Total_list[i].pop(-1)
 
-
+    print("Total_list:", Total_list)
     cv2.waitKey(0)
     cv2.destroyAllWindows()

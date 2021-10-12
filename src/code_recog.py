@@ -52,7 +52,7 @@ if __name__ == "__main__" :
     # file_list = getfileorder(file_path)
     # print(len(getfileorder(file_path)))
 
-    file_name = 'C:\\Users\\SONG\\Desktop\\image5\\22_15_59_950.jpg'
+    file_name = 'C:\\Users\\SONG\\Desktop\\image5\\22_13_49_770.jpg'
     # zxing二维码识别，界面中只能有一个二维码
     ltext = ocr_qrcode_zxing(file_name)  # 将图片文件里的信息转码放到ltext里面
     # logger.info(u'[%s]Zxing二维码识别:[%s]!!!' % (filename, ltext))  # 记录文本信息
