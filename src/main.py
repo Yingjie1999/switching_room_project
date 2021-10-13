@@ -53,10 +53,10 @@ switcher = {
     '2': meas_point_2.Point_two,
     '3': meas_point_3.Point_three,
     '4': meas_point_4.Point_four,
-    '5': meas_point_3.Point_three,
+    '5': meas_point_5.Point_five,
     '6': meas_point_6.Point_six,
-    '7': meas_point_3.Point_three,
-    '16':meas_point_3.Point_three
+    '7': meas_point_7.Point_seven,
+    '16':meas_point_16.Point_sixteen,
     # 3: get_function_3
 }
 # 根据flag的值决定执行哪一个函数，如果输入的值在字典中没有，则执行get_default函数

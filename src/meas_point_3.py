@@ -109,7 +109,7 @@ def L_led_split(img):
     for c in contours:
         x, y, w, h = cv2.boundingRect(c)
         # 一个筛选，可能需要看识别条件而定，有待优化
-        if w / h > 1 and w < 0.8 * split_w and w > 0.1 * split_w and h < 0.8 * split_h and h > 0.1 * split_h:
+        if w / h > 1 and w < 0.8 * split_w and w > 0.1 * split_w and h < 0.8 * split_h and h > 0.1 * split_h and x>10 and y>10:
             boundRect.append([x, y, w, h])
             # 画一个方形标注一下，看看圈的范围是否正确
             # red_dil = cv2.rectangle(image_split, (x, y), (x + w, y + h), 255, 2)
@@ -122,9 +122,9 @@ def L_led_split(img):
     # 暂时通过最大值来判断
     a = np.array(boundRect)
     maxindex = a.argmax(axis=0)
-    # print(maxindex)
+    print(maxindex)
     led_bound = []
-    led_bound = (boundRect[0])
+    led_bound = (boundRect[maxindex[2]])
     print(led_bound)
     led_coordinate_x = led_bound[0]
     led_coordinate_y = led_bound[1]
@@ -424,6 +424,10 @@ def lianpian_split(img):
     image_split = image[image_h // 2 : image_h, image_w//2:image_w]
     ##cvshow1000##("image_split",image_split)
     gray = cv2.cvtColor(image_split, cv2.COLOR_BGR2GRAY)
+    hsv = cv2.cvtColor(image_split, cv2.COLOR_BGR2HSV)  # 色彩空间转换为hsv，便于分离
+    lower_hsv2 = np.array([0, 0, 0])  # 提取颜色的低值 black [0, 0, 0]
+    high_hsv2 = np.array([180, 255, 80])  # 提取颜色的高值 [180, 255, 46]
+    mask2 = cv2.inRange(hsv, lowerb=lower_hsv2, upperb=high_hsv2)
     # #cv2.imshow#("gray", gray)
     ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
     contours, hierarchy = cv2.findContours(image_er, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # 找轮廓
@@ -444,7 +448,10 @@ def lianpian_split(img):
             # ##cvshow1000##("red",red_dil)
     # print(boundRect)
     maxindex = np.argmax(boundRect,axis=0)
+    print("maxindex:",maxindex)
     black_area = boundRect[0]
+    black_img = image_split[boundRect[0][1]:boundRect[0][1]+boundRect[0][3],boundRect[0][0]:boundRect[0][0]+boundRect[0][2]]
+    cv2.imshow("black_iimg",black_img)
     lianpian_area = [black_area[0]-black_area[2]//2,black_area[1]-black_area[3]*1.5,black_area[2]*2,black_area[3]*1.25]
     lianpian_area = [int (i) for i in lianpian_area]
     print("lianpian",lianpian_area)

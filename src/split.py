@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.cluster import DBSCAN
 import matplotlib.pyplot as plt
 
-# def #cv_show#(name, img_):
+# def cv2.imshow(name, img_):
 #     cv2.namedWindow(name)
 #     #cv2.imshow#(name, img_)
 
@@ -26,14 +26,15 @@ def detect_and_split_1(image): # 红色数码管
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (30, 30))  # 定义结构元素的形状和大小
     dst = cv2.dilate(mask1, kernel)  # 膨胀操作
     mask_and = cv2.bitwise_and(dst, mask2)
-    #cv_show#('1', mask1)
-    #cv_show#('2', mask2)
+    cv2.imshow('1', mask1)
+    cv2.imshow('2', mask2)
     X = []
     for i in range(mask_and.shape[0]):
         for j in range(mask_and.shape[1]):
             if mask_and[i, j] > 10:
                 X.append([i, j])
     X = np.array(X)
+    print(np.shape(X))
     db = DBSCAN(eps=3, min_samples=5, metric='euclidean')  # 密度聚类DBSCAN 半径，样本点数量，欧式距离
     y_db = db.fit_predict(X)
     num = {}
@@ -47,10 +48,12 @@ def detect_and_split_1(image): # 红色数码管
         X_obj = X[y_db == obj, :]
     else:
         raise ValueError
+    # print(X_obj)
+    print(np.shape(X_obj))
     box = np.array([min(X_obj[:, 1]), min(X_obj[:, 0]), max(X_obj[:, 1]), max(X_obj[:, 0])])  # xmin, ymin, xmax, ymax
     box = (box / f_xy).astype(np.int)
     img_obj = img[box[1]:box[3], box[0]:box[2]]
-    #cv_show#('3', img_obj)
+    cv2.imshow('3', img_obj)
 
     hsv_obj = cv2.cvtColor(img_obj, cv2.COLOR_BGR2HSV)  # 色彩空间转换为hsv，便于分离
     lower_hsv1 = np.array([156, 100, 100])  # 提取颜色的低值 red [156, 43, 46]
@@ -60,7 +63,7 @@ def detect_and_split_1(image): # 红色数码管
     mask_1 = cv2.inRange(hsv_obj, lowerb=lower_hsv1, upperb=high_hsv1)
     mask_2 = cv2.inRange(hsv_obj, lowerb=lower_hsv2, upperb=high_hsv2)
     mask3 = cv2.bitwise_or(mask_1, mask_2)
-    #cv_show#('4', mask3)
+    cv2.imshow('4', mask3)
 
     X2 = []
     for i in range(mask3.shape[0]):
@@ -70,7 +73,7 @@ def detect_and_split_1(image): # 红色数码管
     X2 = np.array(X2)
     box2 = np.array([min(X2[:, 1]), min(X2[:, 0]), max(X2[:, 1]), max(X2[:, 0])])  # xmin, ymin, xmax, ymax
     img_obj2 = mask3[box2[1]:box2[3], box2[0]:box2[2]]
-    #cv_show#('5', img_obj2)
+    cv2.imshow('5', img_obj2)
 
     h, w = img_obj2.shape[:2]
     x_b, y_b, y_h = 0.1 * w, 0.1 * h, (0.2 * h + h) / 3
@@ -84,7 +87,7 @@ def detect_and_split_1(image): # 红色数码管
         char = img_obj[box_img[i, 1]:box_img[i, 3], box_img[i, 0]:box_img[i, 2]]
         img_objs.append(char)
     # for i in range(len(img_objs)):
-        #cv_show#('obj{}'.format(i), img_objs[i])
+        cv2.imshow('obj{}'.format(i), img_objs[i])
     return img_objs
 
 def detect_and_split_2(file_path): # 绿色液晶屏
@@ -127,9 +130,9 @@ def detect_and_split_2(file_path): # 绿色液晶屏
     box = np.array([min(X_obj[:, 1]), min(X_obj[:, 0]), max(X_obj[:, 1]), max(X_obj[:, 0])])  # xmin, ymin, xmax, ymax
     box_r = (box / f_xy).astype(np.int)
     img_obj = img[box_r[1]:box_r[3], box_r[0]:box_r[2]]
-    # #cv_show#('1', mask1)
-    # #cv_show#('2', mask2)
-    #cv_show#('3', img_obj)
+    # cv2.imshow('1', mask1)
+    # cv2.imshow('2', mask2)
+    cv2.imshow('3', img_obj)
     # cv2.imwrite('333.jpg',img_obj)
     # hsv_obj = cv2.cvtColor(img_obj, cv2.COLOR_BGR2HSV)  # 色彩空间转换为hsv，便于分离
     # lower_hsv2 = np.array([0, 0, 0])  # 提取颜色的低值 black [0, 0, 0]
@@ -137,7 +140,7 @@ def detect_and_split_2(file_path): # 绿色液晶屏
     # mask3 = cv2.inRange(hsv_obj, lowerb=lower_hsv2, upperb=high_hsv2)
     gray_obj = cv2.cvtColor(img_obj, cv2.COLOR_BGR2GRAY)
     ret1, mask3 = cv2.threshold(gray_obj, 0, 255, cv2.THRESH_OTSU)  # 方法选择为THRESH_OTSU
-    # #cv_show#('4', mask3)
+    # cv2.imshow('4', mask3)
 
     X2 = []
     X3 = {}
@@ -150,7 +153,7 @@ def detect_and_split_2(file_path): # 绿色液晶屏
     X2 = np.array(X2)
     box2 = np.array([min(X2[:, 1]), min(X2[:, 0]), max(X2[:, 1]), max(X2[:, 0])])  # xmin, ymin, xmax, ymax
     img_obj2 = mask3[box2[1]:box2[3], box2[0]:box2[2]]
-    # #cv_show#('5', img_obj2)
+    # cv2.imshow('5', img_obj2)
     print(X3)
 
     h = img_obj2.shape[0] // 4
@@ -169,8 +172,8 @@ def detect_and_split_2(file_path): # 绿色液晶屏
         img_obj3.append(quarter)
 
     # for i in range(len(img_objs)):
-        # #cv_show#('obj{}'.format(i), img_objs[i])
-        # #cv_show#('obj_er{}'.format(i),img_obj3[i])
+        # cv2.imshow('obj{}'.format(i), img_objs[i])
+        # cv2.imshow('obj_er{}'.format(i),img_obj3[i])
         # cv2.imwrite('obj{}'.format(i)+'.jpg', img_objs[i])
     return img_obj
 
@@ -213,16 +216,16 @@ def detect_and_split_3(file_path): # 白色字
     box = np.array([min(X_obj[:, 1]), min(X_obj[:, 0]), max(X_obj[:, 1]), max(X_obj[:, 0])])  # xmin, ymin, xmax, ymax
     box_r = (box / f_xy).astype(np.int)
     img_obj = img[box_r[1]:box_r[3], box_r[0]:box_r[2]]
-    # #cv_show#('1', mask1)
-    # #cv_show#('2', mask2)
-    # #cv_show#('3', img_obj)
+    # cv2.imshow('1', mask1)
+    # cv2.imshow('2', mask2)
+    # cv2.imshow('3', img_obj)
 
     # hsv_obj = cv2.cvtColor(img_obj, cv2.COLOR_BGR2HSV)  # 色彩空间转换为hsv，便于分离
     # mask3 = cv2.inRange(hsv_obj, lowerb=lower_hsv1, upperb=high_hsv1)
     gray_obj = cv2.cvtColor(img_obj, cv2.COLOR_BGR2GRAY)
     ret1, mask3 = cv2.threshold(gray_obj, 0, 255, cv2.THRESH_OTSU)  # 方法选择为THRESH_OTSU
     mask_obj = mask3[mask3.shape[0]//8:mask3.shape[0]//8*7,0:mask3.shape[1]]
-    # #cv_show#('4', mask_obj)
+    # cv2.imshow('4', mask_obj)
     # cv2.imwrite('AH2.jpg',mask_obj)
 
     X3 = {}
@@ -247,7 +250,7 @@ def detect_and_split_3(file_path): # 白色字
     pos = [max(del_key1), min(del_key2)]
     print(pos)
     img_obj2 = img_obj[1:img_obj.shape[0] - 1, pos[0] - 30:pos[1] + 30]  # xmin, ymin, xmax, ymax
-    #cv_show#('5', img_obj2)
+    cv2.imshow('5', img_obj2)
     # cv2.imwrite('AH222.jpg', img_obj2)
     # return img_obj2
     return img_obj2
@@ -263,7 +266,7 @@ if __name__ == '__main__':
     # img2_path = './images/2_1.jpg'
     # image = detect_and_split_2(img2_path)
     # # for i in range(len(image)):
-    # #     #cv_show#('obj_lcd{}'.format(i), image[i])
+    # #     cv2.imshow('obj_lcd{}'.format(i), image[i])
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
     # img3_path = './images/5.jpg'
