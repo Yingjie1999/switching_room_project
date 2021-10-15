@@ -820,7 +820,7 @@ def handcar_led_recog(img):
 def running_led_split(image, last_location):
     img = image
     h, w = gain_h_and_w(img)
-    running_location = [last_location[0] - last_location[2] // 2, last_location[1], last_location[2] // 2,
+    running_location = [last_location[0] - last_location[2] // 5 *3, last_location[1], last_location[2] // 2,
                         last_location[3] * 2]
     print("handcar_", running_location)
     led_img = img[running_location[1]:running_location[1] + running_location[3],
@@ -925,11 +925,11 @@ def Point_sixteen(file_name2, code_info):
     # Point_list.append(dispatchNum_recog(num_img))
     L_led_img, L_led_area = L_led_split(img2)
     # # cv2.imshow("L-le_img",L_led_img)
-    # Point_list.append(L_led_recog(L_led_img))
+    Point_list.append(L_led_recog(L_led_img))
     yuanfang_img, yuhe_img = APTkey_split(img2, L_led_area)
     # cv2.imshow("yuanfnag",yuanfang_img)
-    # Point_list.append(APTkey_yuanfang_recogn(yuanfang_img))
-    # Point_list.append(APTkey_yuhe_recogn(yuhe_img))
+    Point_list.append(APTkey_yuanfang_recogn(yuanfang_img))
+    Point_list.append(APTkey_yuhe_recogn(yuhe_img))
     lianpian_img, lianpian_area = lianpian_split(img2)
     Point_list.append(lianpian_recog(lianpian_img))
     b_w_key_img, b_w_key_area = b_w_key_split2(img2, lianpian_area)

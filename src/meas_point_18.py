@@ -1,39 +1,45 @@
 import cv2
-import os
 import numpy as np
-from repetition import Repetition
+import os
 import recognition
 import split
 
+# def ##cvshow1000##(name, img):
+#      #cv2.namedWindow#(name, cv2.WINDOW_NORMAL)
+#      #cv2.resizeWindow#(name, 1000, 750)
+#      cv2.imshow(name, img)
 
-#TODO:将一个测点的所有的函数封装到一个类中
+def gain_h_and_w(img):
+    h = img.shape[0]
+    w = img.shape[1]
+    return h,w
 
 def dispatchNum_split(img):
     image = img
     split_h = image.shape[0]
     split_w = image.shape[1]
     image_split = image[split_h // 4:split_h // 4 * 3, split_w // 4:3 * split_w // 4]
-    # #cv2.imshow#("image_split",image_split)
+    # cv2.imshow("image_split",image_split)
     gray = cv2.cvtColor(image_split, cv2.COLOR_BGR2GRAY)
-    # cv2.namedWindow("gray",cv2.WINDOW_NORMAL)
-    # cv2.resizeWindow("gray",1000,750)
-    # #cv2.imshow#("gray",gray)
+    # #cv2.namedWindow#("gray",cv2.WINDOW_NORMAL)
+    # #cv2.resizeWindow#("gray",1000,750)
+    # cv2.imshow("gray",gray)
 
     image_g = cv2.GaussianBlur(gray, (3, 3), 0)
-    cv2.namedWindow("gauss", 0)
-    cv2.resizeWindow("gauss", 1000, 750)
-    #cv2.imshow#("gauss", image_g)
+    # #cv2.namedWindow#("gauss", 0)
+    # #cv2.resizeWindow#("gauss", 1000, 750)
+    # cv2.imshow("gauss", image_g)
 
     ret, image_er = cv2.threshold(image_g, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
-    cv2.namedWindow("er", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("er", 1000, 750)
-    #cv2.imshow#("er", image_er)
+    # #cv2.namedWindow#("er", cv2.WINDOW_NORMAL)
+    # #cv2.resizeWindow#("er", 1000, 750)
+    # cv2.imshow("er", image_er)
 
     contours, hierarchy = cv2.findContours(image_er, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # 找轮廓
     # cv2.drawContours(image_split, contours, -1, (0, 255, 0), 3)  # 把边缘给画出来
-    # cv2.namedWindow("luokuo",0)
-    # cv2.resizeWindow("luokuo",1000,750)
-    # #cv2.imshow#("luokuo",image_split)
+    # #cv2.namedWindow#("luokuo",0)
+    # #cv2.resizeWindow#("luokuo",1000,750)
+    # cv2.imshow("luokuo",image_split)
     boundRect = []
     for c in contours:
         x, y, w, h = cv2.boundingRect(c)
@@ -43,9 +49,9 @@ def dispatchNum_split(img):
             # 画一个方形标注一下，看看圈的范围是否正确
             # red_dil = cv2.rectangle(image_split, (x, y), (x + w, y + h), 255, 2)
             # print(x, y, w, h)
-            # cv2.namedWindow("bound", 0)
-            # cv2.resizeWindow("bound", 1000, 750)
-            # #cv2.imshow#('bound', red_dil)
+            # #cv2.namedWindow#("bound", 0)
+            # #cv2.resizeWindow#("bound", 1000, 750)
+            # cv2.imshow('bound', red_dil)
     # print(boundRect)
     # print(np.shape(boundRect))
     # 暂时通过最大值来判断
@@ -53,7 +59,7 @@ def dispatchNum_split(img):
     maxindex = a.argmax(axis=0)
     # print(maxindex)
     black = []
-    black = (boundRect[maxindex[2]])
+    black = (boundRect[0])
     print(black)
 
     # dispatchNum_coordinate = []
@@ -65,13 +71,13 @@ def dispatchNum_split(img):
         [dispatchNum_coordinate_x, dispatchNum_coordinate_y, dispatchNum_coordinate_w, dispatchNum_coordinate_h])
     image_out = image_split[dispatchNum_coordinate_y:dispatchNum_coordinate_y + dispatchNum_coordinate_h,
                 dispatchNum_coordinate_x:dispatchNum_coordinate_x + dispatchNum_coordinate_w]
-    # #cv2.imshow#("image_out",image_out)
+    # cv2.imshow("image_out",image_out)
     print(dispatchNum_coordinate)
     diaoduhao40 = cv2.rectangle(image_split, (dispatchNum_coordinate_x, dispatchNum_coordinate_y), (dispatchNum_coordinate_x + dispatchNum_coordinate_w,
                                                                                                 dispatchNum_coordinate_y + dispatchNum_coordinate_h), (0,0,255), 2)
-    cv2.namedWindow("40",0)
-    cv2.resizeWindow("40",1000,750)
-    #cv2.imshow#("40",diaoduhao40)
+    #cv2.namedWindow#("40",0)
+    #cv2.resizeWindow#("40",1000,750)
+    cv2.imshow("40",diaoduhao40)
     return image_out
 
 def dispatchNum_recog(img):
@@ -89,34 +95,34 @@ def L_led_split(img):
     # print("split_w:", split_w)
     image_split = image[split_h: split_h * 2, 0: split_w]
     gray = cv2.cvtColor(image_split, cv2.COLOR_BGR2GRAY)
-    # #cv2.imshow#("gray", gray)
+    # cv2.imshow("gray", gray)
     ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
-    cv2.namedWindow("er", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("er", 1000, 750)
-    #cv2.imshow#("er", image_er)
+    #cv2.namedWindow#("er", cv2.WINDOW_NORMAL)
+    #cv2.resizeWindow#("er", 1000, 750)
+    cv2.imshow("er", image_er)
     contours, hierarchy = cv2.findContours(image_er, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # 找轮廓
     # cv2.drawContours(image_split, contours, -1, (0, 255, 0), 3)  # 把边缘给画出来
-    # cv2.namedWindow("luokuo",0)
-    # cv2.resizeWindow("luokuo",1000,750)
-    # #cv2.imshow#("luokuo",image_split)
+    # #cv2.namedWindow#("luokuo",0)
+    # #cv2.resizeWindow#("luokuo",1000,750)
+    # cv2.imshow("luokuo",image_split)
     boundRect = []
     for c in contours:
         x, y, w, h = cv2.boundingRect(c)
         # 一个筛选，可能需要看识别条件而定，有待优化
-        if w / h > 1 and w < 0.8 * split_w and w > 0.1 * split_w and h < 0.8 * split_h and h > 0.1 * split_h:
+        if w / h > 1 and w < 0.8 * split_w and w > 0.1 * split_w and h < 0.8 * split_h and h > 0.1 * split_h and x>10 and y>10:
             boundRect.append([x, y, w, h])
             # 画一个方形标注一下，看看圈的范围是否正确
             # red_dil = cv2.rectangle(image_split, (x, y), (x + w, y + h), 255, 2)
             # # print(x, y, w, h)
-            # cv2.namedWindow("bound", 0)
-            # cv2.resizeWindow("bound", 1000, 750)
-            # #cv2.imshow#('bound', red_dil)
-    # print(boundRect)
+            # #cv2.namedWindow#("bound", 0)
+            # #cv2.resizeWindow#("bound", 1000, 750)
+            # cv2.imshow('bound', red_dil)
+    print(boundRect)
     # print(np.shape(boundRect))
     # 暂时通过最大值来判断
     a = np.array(boundRect)
     maxindex = a.argmax(axis=0)
-    # print(maxindex)
+    print(maxindex)
     led_bound = []
     led_bound = (boundRect[maxindex[2]])
     print(led_bound)
@@ -127,11 +133,230 @@ def L_led_split(img):
     led_coordinate = np.array([led_coordinate_x, led_coordinate_y, led_coordinate_w, led_coordinate_h])
     image_out = image_split[led_coordinate_y:led_coordinate_h + led_coordinate_y,
                             led_coordinate_x: led_coordinate_w + led_coordinate_x]
-    return image_out
+    return image_out, led_coordinate
+
+
+#这个是识别函数，主要将分割出来的L1、2、3的亮灭状态给区分出来，1表示亮，0表示灭
+def L_led_recog(image):
+    # cv2.imshow("image", image)
+    # print("image_w:",image.shape[1],"image_h:",image.shape[0])
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray = cv2.medianBlur(gray, 3)
+    # cv2.imshow("gray", gray)
+    ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
+    # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    # image_er = cv2.morphologyEx(image_er, cv2.MORPH_OPEN, kernel,iterations=3)
+    # cv2.imshow("image_er",image_er)
+    # 这里 灭的灯识别不出来
+    # print(image_er.shape[0])
+    canny = cv2.Canny(image_er, 50, 150)
+    circles = cv2.HoughCircles(canny, cv2.HOUGH_GRADIENT, 1, 35, param1=300, param2=20, minRadius=0,
+                               maxRadius=image_er.shape[0] // 4)
+    # print(circles)
+    led_list = ['灭', '灭', '灭']
+    if circles is not None:
+        circles = np.uint16(np.around(circles))  # around对数据四舍五入，为整数
+        for i in circles[0, :]:
+            cv2.circle(image, (i[0], i[1]), i[2], (0, 0, 255), 2)  # 画圆
+            cv2.circle(image, (i[0], i[1]), 2, (0, 0, 255), 2)  # 画圆心
+        print(circles)
+        # print(circles[0][0][0])
+        # print(image.shape[1]//5*2)
+
+        for i in range(len(circles[0])):
+            image_zhong = image[circles[0][i][1] - circles[0][i][2]:circles[0][i][1] + circles[0][i][2],
+                          circles[0][i][0] - circles[0][i][2]:circles[0][i][0] + circles[0][i][2]]
+            # cv2.imshow("image_yuan", image_yuan)
+            hsv = cv2.cvtColor(image_zhong, cv2.COLOR_RGB2HSV)
+            H, S, V = cv2.split(hsv)
+            # print("HSV", H, S, V)
+            v = V.ravel()[np.flatnonzero(V)]  # 亮度非零的值
+            average_v = sum(v) / len(v)
+            print("average_v", average_v)
+            # if average_v < 120:
+            #     led_list.insert(i, 0)
+            # else:
+            #     led_list.insert(i, 1)
+            if circles[0][i][0] <= image.shape[1] // 5 * 2 and average_v > 120:
+                led_list[0] = '亮'
+
+            if circles[0][i][0] > image.shape[1] // 5 * 2 and circles[0][i][0] < image.shape[
+                1] // 5 * 3 and average_v > 120:
+                led_list[1] = '亮'
+
+
+            if circles[0][i][0] >= image.shape[1] // 5 * 3 and average_v > 120:
+                led_list[2] = '亮'
+
+
+        print(led_list)
+        cv2.imshow("yuan", image)
+        return led_list
+
+
+
+#将远方开关给分割出来
+def APTkey_split(img, L_led_area ):
+    image = img
+    image_h ,image_w = gain_h_and_w(image)
+    image_split = image[image_h//2 + L_led_area[1]:image_h//2 + L_led_area[1] + L_led_area[3]*2, L_led_area[0]+L_led_area[2]:L_led_area[0]+L_led_area[2]*5//2]
+    cv2.imshow("image_split",image_split)
+    gray = cv2.cvtColor(image_split, cv2.COLOR_BGR2GRAY)
+    # cv2.imshow("gray", gray)
+    ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
+    contours, hierarchy = cv2.findContours(image_er, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # 找轮廓
+    # cv2.drawContours(image_split, contours, -1, (0, 255, 0), 3)  # 把边缘给画出来
+    # cv2.imshow("contour",image_split)
+    split_h, split_w = gain_h_and_w(image_split)
+    boundRect = []
+    for c in contours:
+        x, y, w, h = cv2.boundingRect(c)
+        # 一个筛选，可能需要看识别条件而定，有待优化
+        if w / h < 1.2 and w/h >0.8 and w < 0.8 * split_w and h < 0.8 * split_h and h > 0.1 * split_h:
+            boundRect.append([x, y, w, h])
+            # 画一个方形标注一下，看看圈的范围是否正确
+            red_dil = cv2.rectangle(image_split, (x, y), (x + w, y + h), 255, 2)
+            # print(x, y, w, h)
+            cv2.imshow('bound', red_dil)
+    # print(boundRect)
+    if boundRect is not None:
+        boundRect.sort(key=lambda x: x[3], reverse=True)
+        print(boundRect)
+        # if boundRect[0][0]<=boundRect[1][0]:
+        # a = np.array(boundRect)
+        # maxindex = a.argmax(axis=-1)
+        # print(maxindex)
+        # b = np.delete(a, 0, axis=0)
+        # maxindex_second = b.argmax(axis=-1)
+        # # print(b[1])
+        # if 0 <= 1:
+        #     maxindex_second = [i + 0 for i in maxindex_second]
+        # 比较两个开关的位置
+        if boundRect[0][0] <= boundRect[1][0]:
+            image_return_yuanfang = image_split[
+                                    boundRect[0][1]:boundRect[0][1] + boundRect[0][3],
+                                    boundRect[0][0]:boundRect[0][0] + boundRect[0][2]]
+            image_return_yuhe = image_split[boundRect[1][1]:boundRect[1][1] +boundRect[1][3],
+                                boundRect[1][0]:boundRect[1][0] +boundRect[1][2]]
+            return image_return_yuanfang, image_return_yuhe
+        else:
+            image_return_yuanfang = image_split[boundRect[1][1]:boundRect[1][1] + boundRect[1][3],
+                                    boundRect[1][0]:boundRect[1][0] + boundRect[1][2]]
+            image_return_yuhe = image_split[
+                                boundRect[0][1]:boundRect[0][1] + boundRect[0][3],
+                                boundRect[0][0]:boundRect[0][0] + boundRect[0][2]]
+            return image_return_yuanfang, image_return_yuhe
+
+def APTkey_recogn(img):
+
+    h,w = gain_h_and_w(img)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
+    cv2.imshow("img_er",image_er)
+    img_down = image_er[h//4*3:h, 0:w]
+    # cv2.imshow("down",img_down)
+    img_right = image_er[0:h, w//4*3:w]
+    # cv2.imshow("right",img_right)
+    len_down1 = len(img_down[img_down==0])
+    # len_down2 = len(img_down[img_down==255])
+    len_right1 = len(img_right[img_right==0])
+    # len_right2 = len(img_right[img_right==255])
+    #0表示开关为竖着的状态（远地开关），1表示横着的状态（就地开关）
+    if len_down1>len_right1:
+        return 0
+    else:
+        return 1
+
+def APTkey_yuanfang_recogn(img):
+
+        h, w = gain_h_and_w(img)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
+        cv2.imshow("img_er", image_er)
+        img_down = image_er[h // 4 * 3:h, 0:w]
+        # cv2.imshow("down",img_down)
+        img_right = image_er[0:h, w // 4 * 3:w]
+        # cv2.imshow("right",img_right)
+        len_down1 = len(img_down[img_down == 0])
+        # len_down2 = len(img_down[img_down==255])
+        len_right1 = len(img_right[img_right == 0])
+        # len_right2 = len(img_right[img_right==255])
+        # 0表示开关为竖着的状态（远地开关），1表示横着的状态（就地开关）
+        if len_down1 > len_right1:
+            return '远方'
+        else:
+            return '就地'
+
+def APTkey_yuhe_recogn(img):
+
+        h, w = gain_h_and_w(img)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
+        cv2.imshow("img_er", image_er)
+        img_down = image_er[h // 4 * 3:h, 0:w]
+        # cv2.imshow("down",img_down)
+        img_right = image_er[0:h, w // 4 * 3:w]
+        # cv2.imshow("right",img_right)
+        len_down1 = len(img_down[img_down == 0])
+        # len_down2 = len(img_down[img_down==255])
+        len_right1 = len(img_right[img_right == 0])
+        # len_right2 = len(img_right[img_right==255])
+        # 0表示开关为竖着的状态（远地开关），1表示横着的状态（就地开关）
+        if len_down1 > len_right1:
+            return '预合合后'
+        else:
+            return '预合分后'
+
+    # # 构建掩模
+    # mask = cv2.inRange(hsv, l_white, h_white)
+    # # 进行位运算
+    # # res = cv2.bitwise_and(img, mask=mask)
+    # lower_hsv1 = np.array([0, 0, 100])  # 提取颜色的低值 white [0, 0, 221]
+    # high_hsv1 = np.array([180, 30, 255])  # 提取颜色的高值 [180, 30, 255]
+    # mask1 = cv2.inRange(hsv, lowerb=lower_hsv1, upperb=high_hsv1)
+    # lower_hsv2 = np.array([100, 43, 0])  # 提取颜色的低值 blue [100, 43, 46] blue & black
+    # high_hsv2 = np.array([124, 255, 255])  # 提取颜色的高值 [124, 255, 255]
+    # mask2 = cv2.inRange(hsv, lowerb=lower_hsv2, upperb=high_hsv2)
+    # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (30, 30))  # 定义结构元素的形状和大小
+    # dst = cv2.dilate(mask1, kernel)  # 膨胀操作
+    # mask_and = cv2.bitwise_and(dst, mask2)
+    # cv2.imshow("img", img)
+    # cv2.imshow("mask1", mask1)
+    # cv2.imshow("mask2", mask2)
+    # cv2.imshow("and", mask_and)
+    # # # cv2.imshow("gray", gray)
+    # # ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
+    # # contours, hierarchy = cv2.findContours(image_er, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # 找轮廓
+    # # # cv2.drawContours(img, contours, -1, (0, 255, 0), 3)  # 把边缘给画出来
+    # # # cv2.imshow("contour",img)
+    # # split_h, split_w = gain_h_and_w(img)
+    # # boundRect = []
+    # # for c in contours:
+    # #     x, y, w, h = cv2.boundingRect(c)
+    # #     # 一个筛选，可能需要看识别条件而定，有待优化
+    # #     if w / h < 0.5 or w / h >2  and w < 0.5 * split_w and h < 0.5 * split_h :
+    # #         boundRect.append([x, y, w, h])
+    # #         # 画一个方形标注一下，看看圈的范围是否正确
+    # #         red_dil = cv2.rectangle(img, (x, y), (x + w, y + h), 255, 2)
+    # #         # print(x, y, w, h)
+    # #         cv2.imshow('bound', red_dil)
+    # # edge = cv2.Canny(gray, 50, 150)
+    # # cv2.imshow("bound", edge)
+    # # lines = cv2.HoughLinesP(edge, 1, np.pi / 180, threshold=30)
+    # # for x1, y1, x2, y2 in lines[:, 0]:
+    # #     cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
+    # # print("line", lines)
+    # # cv2.imshow("xian,", img)
+    #
+
+
 
 #通过这个函数可以直接获得开关的开关状态，1表示打向右边（开），0表示打向左边（关）
-def b_w_key_split(img):
-    image = img
+def lighting_key_split(image_path):
+    image = cv2.imread(image_path)
     split_h = image.shape[0] // 2
     split_w = image.shape[1] // 2
     print("split_h:", split_h)
@@ -140,105 +365,324 @@ def b_w_key_split(img):
     gray = cv2.cvtColor(image_split, cv2.COLOR_BGR2GRAY)
     gray = cv2.medianBlur(gray, 3)
     # gray = cv2.GaussianBlur(gray,(3,3),0)
-    # #cv2.imshow#("gray", gray)
+    # cv2.imshow("gray", gray)
     ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
-    cv2.namedWindow("er", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("er", 1000, 750)
-    #cv2.imshow#("er", image_er)
+    #cv2.namedWindow#("er", cv2.WINDOW_NORMAL)
+    #cv2.resizeWindow#("er", 1000, 750)
+    cv2.imshow("er", image_er)
     contours, hierarchy = cv2.findContours(image_er, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # 找轮廓
     # cv2.drawContours(image_split, contours, -1, (0, 255, 0), 3)  # 把边缘给画出来
-    # cv2.namedWindow("luokuo",0)
-    # cv2.resizeWindow("luokuo",1000,750)
-    # #cv2.imshow#("luokuo",image_split)
-    circles = cv2.HoughCircles(image_er, cv2.HOUGH_GRADIENT, 1, 300, param1=300, param2=70, minRadius=0,
+    # #cv2.namedWindow#("luokuo",0)
+    # #cv2.resizeWindow#("luokuo",1000,750)
+    # cv2.imshow("luokuo",image_split)
+    circles = cv2.HoughCircles(image_er, cv2.HOUGH_GRADIENT, 1, 300, param1=300, param2=50, minRadius=0,
                                maxRadius=image_er.shape[0] // 2)                                             #不同测点对于圆的判定阈值会不同，可以尝试 自适应阈值，把阴影个去掉，还有就是对于圆检测再做尝试
 
     # print(len(circles))
     # print("shape[1]:",image_split.shape[1]//10)
-    circles1 = np.array([])
+    circles = np.array([])
     if circles is not None:
         circles = np.uint16(np.around(circles))  # around对数据四舍五入，为整数
-        leng = len(circles[0])
+        leng = len(circles[0][0])
         for i in range(leng):
-            if circles[0][i][0] < image_split.shape[1]//8:
-                # print("i:",circles[0][i][0])
-                circles1 = np.delete(circles[0],i,0)
+            if circles[0][0][i][0] < image_split.shape[0]//8:
+                # print("i:",circles[0][0][i][0])
+                circles = np.delete(circles[0][0],i,0)
 
         for i in circles[0, :]:
             cv2.circle(image_split, (i[0], i[1]), i[2], (0, 0, 255), 2)  # 画圆
             cv2.circle(image_split, (i[0], i[1]), 2, (0, 0, 255), 2)  # 画圆心
-        print(circles1)
-        print(circles)
-        cv2.namedWindow("yuan", 0)
-        cv2.resizeWindow("yuan", 1000, 750)
-        #cv2.imshow#("yuan", image_split)
-        img_area = [circles1[0][0] - circles1[0][2], circles1[0][1] - circles1[0][2], circles1[0][2]*2, circles1[0][2]*2]
-        image_zhong = image_split[circles1[0][1] - circles1[0][2]:circles1[0][1] + circles1[0][2],
-                      circles1[0][0] - circles1[0][2]:circles1[0][0] + circles1[0][2]]
-        image_yuan = gray[circles1[0][1] - circles1[0][2]:circles1[0][1] + circles1[0][2],
-                     circles1[0][0] - circles1[0][2]:circles1[0][0] + circles1[0][2]]
-        #cv2.imshow#("image_yuan", image_yuan)
-        edge = cv2.Canny(image_yuan, 50, 150)
-        #cv2.imshow#("bound", edge)
-        lines = cv2.HoughLinesP(edge, 1, np.pi / 180, threshold=30, minLineLength=30)
-        if lines is not None:
-            for x1, y1, x2, y2 in lines[:, 0]:
-                cv2.line(image_zhong, (x1, y1), (x2, y2), (0, 0, 255), 2)
-            print("line", lines)
-            #cv2.imshow#("xian,", image_zhong)
-            k = []
-            key_list = []
-            for x1, y1, x2, y2 in lines[:, 0]:
-                k.append((y1 - y2) / (x1 - x2))
-            k_sum = sum(k)
-            if k_sum < -1 / 5:
-                key_list.append('开')
+    print(circles)
+    print(circles)
+    #cv2.namedWindow#("yuan",0)
+    #cv2.resizeWindow#("yuan",1000,750)
+    cv2.imshow("yuan", image_split)
+    image_zhong = image_split[circles[0][0][1]-circles[0][0][2]:circles[0][0][1]+circles[0][0][2], circles[0][0][0]-circles[0][0][2]:circles[0][0][0]+circles[0][0][2]]
+    image_yuan = gray[circles[0][0][1]-circles[0][0][2]:circles[0][0][1]+circles[0][0][2], circles[0][0][0]-circles[0][0][2]:circles[0][0][0]+circles[0][0][2]]
+    cv2.imshow("image_yuan",image_yuan)
+    edge = cv2.Canny(image_yuan,50,150)
+    cv2.imshow("bound", edge)
+    lines = cv2.HoughLinesP(edge, 1, np.pi / 180, threshold=30,minLineLength=30)
+    for x1, y1, x2, y2 in lines[:, 0]:
+        cv2.line(image_zhong, (x1, y1), (x2, y2), (0, 0, 255), 2)
+    print("line",lines)
+    cv2.imshow("xian,",image_zhong)
+    k = []
+    for x1, y1, x2, y2 in lines[:, 0]:
+        k.append((y1-y2)/(x1-x2))
+    k_sum = sum(k)
+    if k_sum < -1/5:
+        return 1
+    else:
+        return 0
+
+
+
+def lianpian_split(img):
+    image = img
+
+    image_h, image_w = gain_h_and_w(image)
+    print(image_h,image_w)
+    image_split = image[image_h // 2 : image_h, image_w//2:image_w]
+    ##cvshow1000##("image_split",image_split)
+    gray = cv2.cvtColor(image_split, cv2.COLOR_BGR2GRAY)
+    hsv = cv2.cvtColor(image_split, cv2.COLOR_BGR2HSV)  # 色彩空间转换为hsv，便于分离
+    lower_hsv2 = np.array([0, 0, 0])  # 提取颜色的低值 black [0, 0, 0]
+    high_hsv2 = np.array([180, 255, 80])  # 提取颜色的高值 [180, 255, 46]
+    mask2 = cv2.inRange(hsv, lowerb=lower_hsv2, upperb=high_hsv2)
+    cv2.imshow("mask2",mask2)
+    # cv2.imshow("gray", gray)
+    ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
+    cv2.imshow("er",image_er)
+    contours, hierarchy = cv2.findContours(mask2, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # 找轮廓
+    # cv2.drawContours(image_split, contours, -1, (0, 255, 0), 3)  # 把边缘给画出来
+    ##cvshow1000##("contour",image_er)
+    # ##cvshow1000##("luokuo",image_split)
+    # canny = cv2.Canny(gray, 150, 300)
+    # ##cvshow1000##("canny",canny)
+    split_h, split_w = gain_h_and_w(image_split)
+    boundRect = []
+    for c in contours:
+        x, y, w, h = cv2.boundingRect(c)
+        # 一个筛选，可能需要看识别条件而定，有待优化
+        if w / h < 5 and w / h > 1 and w < 0.8 * split_w and h < 0.8 * split_h and h > 0.1 * split_h and x>10 and y>10:
+            boundRect.append([x, y, w, h])
+            # 画一个方形标注一下，看看圈的范围是否正确
+            red_dil = cv2.rectangle(image_split, (x, y), (x + w, y + h), 255, 2)
+            cv2.imshow("red_dir",red_dil)
+    print(boundRect)
+    maxindex = np.argmax(boundRect,axis=0)
+    print("max_index",maxindex)
+    black_area = boundRect[0]
+    black_img = image_split[boundRect[0][1]:boundRect[0][1] + boundRect[0][3],
+                boundRect[0][0]:boundRect[0][0] + boundRect[0][2]]
+    cv2.imshow("black_img_16", black_img)
+    lianpian_area = [black_area[0]-black_area[2]//2,black_area[1]-black_area[3]*1.5,black_area[2]*2,black_area[3]*1.25]
+    lianpian_area = [int (i) for i in lianpian_area]
+    print("lianpian",lianpian_area)
+    lianpian_image = image_split[lianpian_area[1]:lianpian_area[1]+lianpian_area[3],lianpian_area[0]:lianpian_area[0]+lianpian_area[2]]
+    cv2.imshow("img",lianpian_image)
+    # black_img = image_split[black_area[1]:black_area[1]+black_area[3],black_area[0]:black_area[0]+black_area[2]]
+    # cv2.imshow("bla",black_img)
+
+    return lianpian_image, lianpian_area
+
+def lianpian_recog(img):
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    l_yellow = np.array([[14, 43, 46]])
+    h_yellow = np.array([34, 255, 255])
+    mask_yellow = cv2.inRange(hsv, l_yellow, h_yellow)
+    res = cv2.bitwise_and(img, img, mask=mask_yellow)
+    l_red1 = np.array([156, 100, 0])  # 提取颜色的低值 red [156, 43, 46]
+    h_red1 = np.array([180, 255, 120])  # 提取颜色的高值 [180, 255, 255]
+    l_red2 = np.array([0, 100, 0])  # 提取颜色的低值 red [0, 43, 46]
+    h_red2 = np.array([10, 255, 120])  # 提取颜色的高值 [10, 255, 255]
+    mask_red1 = cv2.inRange(hsv, lowerb=l_red1, upperb=h_red1)
+    mask_red2 = cv2.inRange(hsv, lowerb=l_red2, upperb=h_red2)
+    mask_red = cv2.bitwise_or(mask_red1, mask_red2)
+    mask = cv2.bitwise_or(mask_red, mask_yellow)
+    cv2.imshow("mask_yellow", mask_yellow)
+    cv2.imshow("mask_red", mask_red)
+    cv2.imshow("mask", mask)
+    contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # 找轮廓
+    # cv2.drawContours(img, contours, -1, (0, 255, 0), 3)  # 把边缘给画出来
+    # cv2.imshow("bound",img)
+    boundRect = []
+    for c in contours:
+        x, y, w, h = cv2.boundingRect(c)
+        # 一个筛选，可能需要看识别条件而定，有待优化
+        if h < img.shape[0] * 0.95 and w / h < 2 and w / h > 0.1 and h > img.shape[0] // 3:
+            boundRect.append([x, y, w, h])
+            # 画一个方形标注一下，看看圈的范围是否正确
+            red_dil = cv2.rectangle(img, (x, y), (x + w, y + h), 255, 2)
+            cv2.imshow("lianpian_red", red_dil)
+    print(boundRect)
+
+    if boundRect is not None:
+        boundRect.sort(key=lambda x: x[0], reverse=False)
+        lianpian_list = []
+        for i in range(len(boundRect)):
+            if boundRect[i][2] < boundRect[i][3] * 0.7:
+                lianpian_list.insert(i, '合')  # 0代表闭合，1代表打开
             else:
-                key_list.append('关')
-            print(key_list)
-            return key_list, img_area
+                lianpian_list.insert(i, '分')
+            print(boundRect[i][2]/boundRect[i][3])
+        print("lianpian:", lianpian_list)
+        if len(lianpian_list) != 2:
+            lianpian_list =[' ', ' ']
+        return lianpian_list
+    else:
+        lianpian_list = [' ', ' ']
+        return lianpian_list
 
 
-#这里单独摘出来就就不行了
-def b_w_key_recog(img):
+#通过这个函数可以直接获得测点2 开关的开关状态，1表示打向右边（开），0表示打向左边（关）
+def b_w_key_split2(image, lianpian_location):
+    img = image
+    h,w = gain_h_and_w(img)
+    b_w_key_area = [w//2+lianpian_location[0],h//2+lianpian_location[1]-lianpian_location[3],lianpian_location[2],lianpian_location[3]]
+    print(b_w_key_area)
+    b_w_key_img = img[b_w_key_area[1]:b_w_key_area[1]+b_w_key_area[3],b_w_key_area[0]:b_w_key_area[0]+b_w_key_area[2]]
+    cv2.imshow("split",b_w_key_img)
+    return b_w_key_img, b_w_key_area
+
+def b_w_key_recog2(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     gray = cv2.medianBlur(gray, 3)
-    edge = cv2.Canny(gray, 50, 150)
-    #cv2.imshow#("bound", edge)
-    lines = cv2.HoughLinesP(edge, 1, np.pi / 180, threshold=30, minLineLength=30)
-    for x1, y1, x2, y2 in lines[:, 0]:
-        cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
-    print("line", lines)
-    #cv2.imshow#("xian,", img)
-    k = []
-    key_list = []
-    for x1, y1, x2, y2 in lines[:, 0]:
-        k.append((y1 - y2) / (x1 - x2))
-    k_sum = sum(k)
-    if k_sum < -1 / 5:
-        key_list.append(1)
-    else:
-        key_list.append(0)
-    print(key_list)
-    return key_list
+    # gray = cv2.GaussianBlur(gray,(3,3),0)
+    # cv2.imshow("gray", gray)
+    # canny = cv2.Canny(gray, 50, 150)
+    # cv2.imshow("canny", canny)
+    ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
+    circles = cv2.HoughCircles(image_er, cv2.HOUGH_GRADIENT, 1,50, param1=200, param2=30, minRadius=20,
+                               maxRadius=image_er.shape[0] //2)
+    # circles = np.array([])
+    if circles is not None:
+        circles = np.uint16(np.around(circles))  # around对数据四舍五入，为整数
+        # leng = len(circles[0][0])
+        # for i in range(leng):
+        #     if circles[0][0][i][0] < image_split.shape[0] // 8:
+        #         # print("i:",circles[0][0][i][0])
+        #         circles = np.delete(circles[0][0], i, 0)
 
+        for i in circles[0, :]:
+            cv2.circle(img, (i[0], i[1]), i[2], (0, 0, 255), 2)  # 画圆
+            # cv2.circle(img, (i[0], i[1]), 2, (0, 0, 255), 2)  # 画圆心
+        cv2.imshow("b_key_yuan", img)
+        print(circles)
+        cir = []
+        for i in range(len(circles[0])):
+            cir.append(circles[0][i])
+        print(cir[0])
+        cir.sort(key=lambda x: x[0], reverse=False)
+        print(len(cir))
+        cv2.imshow("yuan", img)
+        k = []
+        k_sum = []
+        key_list = []
+        for i in range(len(cir)):
+            image_zhong = img[cir[i][1] - cir[i][2]:cir[i][1] + cir[i][2],
+                          cir[i][0] - cir[i][2]:cir[i][0] + cir[i][2]]
+            image_yuan = gray[cir[i][1] - cir[i][2]:cir[i][1] + cir[i][2],
+                         cir[i][0] - cir[i][2]:cir[i][0] + circles[0][i][2]]
+            # cv2.imshow("image_yuan", image_yuan)
+            edge = cv2.Canny(image_yuan, 50, 150)
+            # cv2.imshow("bound", edge)
+            lines = cv2.HoughLinesP(edge, 1, np.pi / 180, threshold=30, minLineLength=10)
+            if lines is not None:
+                for x1, y1, x2, y2 in lines[:, 0]:
+                    cv2.line(image_zhong, (x1, y1), (x2, y2), (0, 0, 255), 2)
+                print("line", lines)
+                cv2.imshow("xian,", image_zhong)
+                for x1, y1, x2, y2 in lines[:, 0]:
+                    k.append((y1 - y2) / (x1 - x2))
+                k_sum.append(sum(k))
+                k = []
+        print(k_sum)
+        for i in range(len(k_sum)):
+            if k_sum[i] < -1 / 5:
+                key_list.insert(i, '开')
+            else:
+                key_list.insert(i, '关')
+        print("key_list", key_list)
+        if len(key_list) != 2:
+            key_list = [' ', ' ']
+        return key_list
+        # if k_sum < -1 / 5:
+        #     return 1
+        # else:
+        #     return 0
 
+def instruct_led_split(image, bwkey_area):
+    img = image
+    h,w = gain_h_and_w(img)
+    led_location =[bwkey_area[0],bwkey_area[1]-bwkey_area[3],bwkey_area[2],bwkey_area[3]]
+    print("led",led_location)
+    led_img = img[led_location[1]:led_location[1]+led_location[3],led_location[0]:led_location[0]+led_location[2]]
+    cv2.imshow("led_img",led_img)
+    return led_img, led_location
+
+def instruct_led_recogn(img):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.medianBlur(gray, 3)
+    # gray = cv2.GaussianBlur(gray,(3,3),0)
+    # cv2.imshow("gray", gray)
+    canny = cv2.Canny(gray, 50, 150)
+    cv2.imshow("canny",canny)
+    ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
+    cv2.imshow("led_er",image_er)
+    circles = cv2.HoughCircles(canny, cv2.HOUGH_GRADIENT, 1, 50, param1=150, param2=30, minRadius=20,
+                               maxRadius=image_er.shape[0] //4)
+    # circles = np.array([])
+    if circles is not None:
+        circles = np.uint16(np.around(circles))  # around对数据四舍五入，为整数
+        # leng = len(circles[0][0])
+        # for i in range(leng):
+        #     if circles[0][0][i][0] < image_split.shape[0] // 8:
+        #         # print("i:",circles[0][0][i][0])
+        #         circles = np.delete(circles[0][0], i, 0)
+
+        for i in circles[0, :]:
+            cv2.circle(img, (i[0], i[1]), i[2], (255,0,0), 2)  # 画圆
+            cv2.circle(img, (i[0], i[1]), 2, (0, 0, 255), 2)  # 画圆心
+        print(circles)
+        cv2.imshow("sangeyuan", img)
+
+        cir = []
+        for i in range(len(circles[0])):
+            cir.append(circles[0][i])
+        print(cir[0])
+        cir.sort(key=lambda x: x[0], reverse=False)
+        print(len(cir))
+        cv2.imshow("yuan", img)
+        led_list = []
+        for i in range(len(cir)):
+            image_zhong = img[cir[i][1] - cir[i][2]:cir[i][1] + cir[i][2],
+                          cir[i][0] - cir[i][2]:cir[i][0] + cir[i][2]]
+            # cv2.imshow("image_yuan", image_yuan)
+            hsv = cv2.cvtColor(image_zhong, cv2.COLOR_RGB2HSV)
+            H, S, V = cv2.split(hsv)
+            # print("HSV", H, S, V)
+            v = V.ravel()[np.flatnonzero(V)]  # 亮度非零的值
+            average_v = sum(v) / len(v)
+            print("average_v", average_v)
+            if average_v < 180:
+                led_list.insert(i, '灭')
+            else:
+                led_list.insert(i, '亮')
+        print("led_list", led_list)
+        if len(led_list) != 3:
+            led_list = [' ', ' ', ' ']
+        return led_list
+
+def handcar_split(image, last_location):
+    img = image
+    h,w = gain_h_and_w(img)
+    handcar_location =[last_location[0],last_location[1]-last_location[3], last_location[2], last_location[3]]
+    print("handcar_",handcar_location)
+    led_img = img[handcar_location[1]:handcar_location[1]+handcar_location[3],handcar_location[0]:handcar_location[0]+handcar_location[2]]
+    cv2.imshow("hand_img",led_img)
+    return led_img, handcar_location
 
 # 计算两边夹角额cos值
 def angle_cos(p0, p1, p2):
     d1, d2 = (p0 - p1).astype('float'), (p2 - p1).astype('float')
     return abs(np.dot(d1, d2) / np.sqrt(np.dot(d1, d1) * np.dot(d2, d2)))
-def find_squares(image_path):
-    image = cv2.imread(image_path)
-    img = image[image.shape[0] // 2: image.shape[0], image.shape[1] // 2: image.shape[1]]
+def find_squares(img):
+    # image = cv2.imread(image_path)
+    # img = image[image.shape[0] // 2: image.shape[0], image.shape[1] // 2: image.shape[1]]
     squares = []
     img = cv2.GaussianBlur(img, (3, 3), 0)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    bin = cv2.Canny(gray, 100, 200, apertureSize=3)
-    cv2.namedWindow("canny",0)
-    cv2.resizeWindow("canny",1000,750)
-    #cv2.imshow#("canny",bin)
+    ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
+    cv2.imshow("led_er",image_er)
+    bin = cv2.Canny(image_er, 50, 150, apertureSize=3)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))  # 矩形结构
+    bin = cv2.morphologyEx(bin, cv2.MORPH_CLOSE, kernel)
+    cv2.imshow("bin", bin)
     contours, _hierarchy = cv2.findContours(bin, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cv2.drawContours(img, contours, -1, (0, 255, 0), 3)  # 把边缘给画出来
+    cv2.imshow("bin2", img)
     print("轮廓数量：%d" % len(contours))
     index = 0
     boundRect = []
@@ -255,7 +699,7 @@ def find_squares(image_path):
             cnt = cnt.reshape(-1, 2)
             max_cos = np.max([angle_cos(cnt[i], cnt[(i + 1) % 4], cnt[(i + 2) % 4]) for i in range(4)])
             # 只检测矩形（cos90° = 0）
-            if max_cos < 0.1:
+            if max_cos < 0.2:
                 # 检测四边形（不限定角度范围）
                 # if True:
                 index = index + 1
@@ -263,197 +707,282 @@ def find_squares(image_path):
                 squares.append(cnt)
     print("squares",squares)
     #将正方形的边框画出并显示
-    # cv2.drawContours(img, squares, -1, (255, 0, 0), 2)
-    # cv2.namedWindow("bound", 0)
-    # cv2.resizeWindow("bound", 1000, 750)
-    # #cv2.imshow#('bound', img)
+    cv2.drawContours(img, squares, -1, (255, 0, 0), 2)
+    # #cv2.namedWindow#("bound", 0)
+    # #cv2.resizeWindow#("bound", 1000, 750)
+    cv2.imshow('bound', img)
 
-    x_min = np.min(squares[0],  axis = 0)[0]
-    y_min = np.min(squares[0],  axis = 0)[1]
-    x_max = np.max(squares[0],  axis = 0)[0]
-    y_max = np.max(squares[0],  axis = 0)[1]
-    print(x_min,x_max,y_min,y_max )
-    img_return = img[y_min:y_max,x_min:x_max]
-    #cv2.imshow#("return", img_return)
+    # x_min = np.min(squares[0],  axis = 0)[0]
+    # y_min = np.min(squares[0],  axis = 0)[1]
+    # x_max = np.max(squares[0],  axis = 0)[0]
+    # y_max = np.max(squares[0],  axis = 0)[1]
+    # print(x_min,x_max,y_min,y_max )
+    # img_return = img[y_min:y_max,x_min:x_max]
+    # cv2.imshow("return", img_return)
+    #
+    # return img_return
 
-    return img_return
-
-#这个是识别函数，主要将分割出来的L1、2、3的亮灭状态给区分出来，1表示亮，0表示灭
-def L_led_recog(image):
-    #cv2.imshow#("image", image)
-    # print("image_w:",image.shape[1],"image_h:",image.shape[0])
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    gray = cv2.medianBlur(gray, 3)
-    #cv2.imshow#("gray", gray)
-    ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
-    # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    # image_er = cv2.morphologyEx(image_er, cv2.MORPH_OPEN, kernel,iterations=3)
-    # #cv2.imshow#("image_er",image_er)
-    # 这里 灭的灯识别不出来
-    # print(image_er.shape[0])
-    circles = cv2.HoughCircles(image_er, cv2.HOUGH_GRADIENT, 1, 35, param1=300, param2=23, minRadius=10,
-                               maxRadius=image_er.shape[0] // 2)
-    # print(circles)
-    if circles is not None:
-        circles = np.uint16(np.around(circles))  # around对数据四舍五入，为整数
-        for i in circles[0, :]:
-            cv2.circle(image, (i[0], i[1]), i[2], (0, 0, 255), 2)  # 画圆
-            cv2.circle(image, (i[0], i[1]), 2, (0, 0, 255), 2)  # 画圆心
-        #cv2.imshow#("yuan",image)
-    print(circles)
-    cir_1 = circles[0]
-    cir = cir_1.tolist()
-    cir.sort(key=lambda x: x[0], reverse=False)
-    print(cir)
-    led_list = []
-    for i in range(len(cir)):
-        image_zhong = image[cir[i][1] - cir[i][2]:cir[i][1] + cir[i][2],
-                      cir[i][0] - cir[i][2]:cir[i][0] + cir[i][2]]
-        # #cv2.imshow#("image_yuan", image_yuan)
-        hsv = cv2.cvtColor(image_zhong, cv2.COLOR_RGB2HSV)
-        H, S, V = cv2.split(hsv)
-        # print("HSV", H, S, V)
-        v = V.ravel()[np.flatnonzero(V)]  # 亮度非零的值
-        average_v = sum(v) / len(v)
-        print("average_v", average_v)
-        if average_v < 120:
-            led_list.insert(i, '灭')
-        else:
-            led_list.insert(i, '亮')
-    print("led_list", led_list)
-    return led_list
-
-# #手车位置开合闸指示灯的状态
-# def handcar_recog(img):
-#     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-#     hist = cv2.calcHist([hsv], [0], None, [180], [0, 180])
-#     object_H = np.argmax(hist)
-#     print("object_H:",object_H)
-#     color = []
-#     if object_H > 156 and object_H < 180:
-#         color.append("red")
-#     elif object_H > 10 and object_H < 34:
-#         color.append("yellow")
-#     print("color:",color)
-#     return color
-#     # plt.plot(hist)
-#     # plt.show()
-
-def handcar_recog(img):
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    l_yellow = np.array([[11, 43, 46]])
-    h_yellow = np.array([34, 255, 255])
-    mask_yellow = cv2.inRange(hsv, l_yellow, h_yellow)
-    res = cv2.bitwise_and(img, img, mask=mask_yellow)
-    #cv2.imshow#("mask_yellow", mask_yellow)
-    img = cv2.GaussianBlur(img, (3, 3), 0)
+def handcar_led_recog(img):
+    # hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    # l_yellow = np.array([[11, 43, 46]])
+    # h_yellow = np.array([34, 255, 255])
+    # mask_yellow = cv2.inRange(hsv, l_yellow, h_yellow)
+    # res = cv2.bitwise_and(img, img, mask=mask_yellow)
+    # cv2.imshow("mask_yellow", mask_yellow)
+    #
+    # contours, hierarchy = cv2.findContours(mask_yellow, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # 找轮廓
+    # boundRect = []
+    # color = []
+    # for c in contours:
+    #     x, y, w, h = cv2.boundingRect(c)
+    #     # 一个筛选，可能需要看识别条件而定，有待优化
+    #     if h < img.shape[0] * 0.95 and w / h > 3 and w > img.shape[1] // 8:
+    #         boundRect.append([x, y, w, h])
+    #         # 画一个方形标注一下，看看圈的范围是否正确
+    #         red_dil = cv2.rectangle(img, (x, y), (x + w, y + h), 255, 2)
+    #         cv2.imshow("handcar_red", red_dil)
+    # if boundRect is not None and len(boundRect) == 3:
+    #     boundRect.sort(key=lambda x: x[0], reverse=False)
+    #     print(boundRect)
+    #     for i in range(len(boundRect)):
+    #         img_area = [boundRect[i][0] + boundRect[i][3] // 3 * 2, boundRect[i][1] - boundRect[i][3] // 2 * 7,
+    #                     boundRect[i][2] - boundRect[i][3], boundRect[i][3] // 2 * 5]
+    #         handcar_img = img[img_area[1]:img_area[1] + img_area[3], img_area[0]:img_area[0] + img_area[2]]
+    #         # cv2.imshow("obj{}".format(i), handcar_img)
+    #         hsv = cv2.cvtColor(handcar_img, cv2.COLOR_BGR2HSV)
+    #         hist = cv2.calcHist([hsv], [0], None, [180], [0, 180])
+    #         object_H = np.argmax(hist)
+    #         print("object_H:", object_H)
+    #
+    #         if object_H >= 156 and object_H <= 180:
+    #             color.append("合闸")
+    #         elif object_H >= 0 and object_H < 10:
+    #             color.append("合闸")
+    #         elif object_H > 10 and object_H <= 34:
+    #             color.append("分闸")
+    #         else:
+    #             color.append(" ")
+    #         print("color:", color)
+    #     return color
+    # else:
+    #     color = [' ', ' ', ' ']
+    #     return color
+    # find_squares(img)           #目前不太好用，主要是有反光部分，或者阴影部分
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    canny = cv2.Canny(gray, 50, 150)
-    #cv2.imshow#("canny_hancar ", canny)
+    gray = cv2.GaussianBlur(gray, (3,3), 0)
+    cv2.imshow("gray", gray)
+    canny = cv2.Canny(gray, 50,150)
+    cv2.imshow("canny", canny)
     ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
-    #cv2.imshow#("img_er", image_er)
-    contours, hierarchy = cv2.findContours(canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # 找轮廓
+    cv2.imshow("handcar_er", image_er)
+    contours, hierarchy = cv2.findContours(image_er, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # 找轮廓
     boundRect = []
-    color = []
     for c in contours:
         x, y, w, h = cv2.boundingRect(c)
         # 一个筛选，可能需要看识别条件而定，有待优化
-        if h < img.shape[0] * 0.95 and w / h > 3 and w > img.shape[1] // 8 and w / h < 6:
+        if h > img.shape[0] // 3 and h < img.shape[0] * 0.95 and w/h < 1.12 and w/h > 0.82:
             boundRect.append([x, y, w, h])
             # 画一个方形标注一下，看看圈的范围是否正确
-            red_dil = cv2.rectangle(img, (x, y), (x + w, y + h), 255, 2)
-            #cv2.imshow#("handcar_red", red_dil)
+            # red_dil = cv2.rectangle(img, (x, y), (x + w, y + h), 255, 2)
+            # cv2.imshow("red",red_dil)
+    # cv2.imshow("min", img)
     if boundRect is not None:
-        boundRect = list(set([tuple(t) for t in boundRect]))
         boundRect.sort(key=lambda x: x[0], reverse=False)
-        print(boundRect)
-        for i in range(len(boundRect)):
-            img_area = [boundRect[i][0] + boundRect[i][3] // 3 * 2, boundRect[i][1] - boundRect[i][3] * 3,
-                        boundRect[i][2] - boundRect[i][3], boundRect[i][3] * 2]
-            handcar_img = img[img_area[1]:img_area[1] + img_area[3], img_area[0]:img_area[0] + img_area[2]]
-            #cv2.imshow#("obj{}".format(i), handcar_img)
-            hsv = cv2.cvtColor(handcar_img, cv2.COLOR_BGR2HSV)
+        print("boundRect", boundRect)
+        boundRect_ = boundRect
+        # w_average = np.mean(boundRect, axis=0)[2]
+        # print(w_average)
+        # for i in range(len(boundRect)):
+        #     if len(boundRect) == 3:
+        #         boundRect_.append(boundRect[i])
+        #     if boundRect[i][2] > w_average:
+        #         boundRect_.append(boundRect[i])
+        # print(boundRect_)
+        color = []
+        for i in range(len(boundRect_)):
+            img_quar = img[boundRect_[i][1]:boundRect_[i][1] + boundRect_[i][3],
+                       boundRect_[i][0]:boundRect_[i][0] + boundRect_[i][2]]
+            hsv = cv2.cvtColor(img_quar, cv2.COLOR_BGR2HSV)
+            # H,S,V = np.split(hsv)
+            H, S, V = cv2.split(hsv)
+            # print("HSV", H, S, V)
+            v = V.ravel()[np.flatnonzero(V)]  # 亮度非零的值
+            average_v = sum(v) / len(v)
+            print("average_v", average_v)
             hist = cv2.calcHist([hsv], [0], None, [180], [0, 180])
             object_H = np.argmax(hist)
             print("object_H:", object_H)
 
-            if object_H >= 156 and object_H <= 180:
+            if object_H >= 156 and object_H <= 180 and average_v>120:
                 color.append("合闸")
-            elif object_H >= 0 and object_H <= 15:
+            elif object_H >= 0 and object_H < 10 and average_v>120:
                 color.append("合闸")
-            elif object_H > 15 and object_H <= 34:
+            elif object_H > 10 and object_H <= 34 and average_v>120:
                 color.append("分闸")
             else:
                 color.append(" ")
-            print("color:", color)
+        print("color:", color)
+        if len(color) != 3:
+            color = [' ', ' ', ' ']
         return color
     else:
-        color = [' ', ' ']
+        color = [' ', ' ', ' ']
         return color
 
-def handcar_split(img, area):
-    image = img
-    h = image.shape[0]
-    w = image.shape[1]
-    handcar_area = [w//2+area[0]-area[2]*2, h//2+area[1]-area[2]*3,area[2]*7,area[2]*3]
-    handcar_img = image[handcar_area[1]:handcar_area[1]+handcar_area[3],handcar_area[0]:handcar_area[0]+handcar_area[2]]
-    #cv2.imshow#("handcan", handcar_img)
-    return handcar_img
+def running_led_split(image, last_location):
+    img = image
+    h, w = gain_h_and_w(img)
+    running_location = [last_location[0] - last_location[2] // 5 *3, last_location[1], last_location[2] // 2,
+                        last_location[3] * 2]
+    print("handcar_", running_location)
+    led_img = img[running_location[1]:running_location[1] + running_location[3],
+              running_location[0]:running_location[0] + running_location[2]]
+    cv2.imshow("led_img", led_img)
+    return led_img, running_location
+
+def running_led_recog(img):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # gray = cv2.GaussianBlur(gray,(3,3),0)
+    cv2.imshow("gray", gray)
+    ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
+    cv2.imshow("running_er", image_er)
+    # canny = cv2.Canny(gray, 50,150)
+    # cv2.imshow("canny",canny)
+    contours, hierarchy = cv2.findContours(image_er, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # 找轮廓
+    # cv2.drawContours(img, contours, -1, (0, 255, 0), 3)  # 把边缘给画出来
+    # cv2.imshow("bianyuan",img)
+    boundRect = []
+    for c in contours:
+        x, y, w, h = cv2.boundingRect(c)
+        # 一个筛选，可能需要看识别条件而定，有待优化
+        if  h < img.shape[0] * 0.95 and w/h >2.5 and w > img.shape[1]//10 :
+            boundRect.append([x, y, w, h])
+            # 画一个方形标注一下，看看圈的范围是否正确
+            red_dil = cv2.rectangle(img, (x, y), (x + w//2, y + h), 255, 2)
+            cv2.imshow("yunixng_led",red_dil)
+    if boundRect is not None:
+        boundRect = list(set([tuple(t) for t in boundRect]))
+        boundRect.sort(key=lambda x: x[1], reverse=False)
+        print(boundRect)
+        color = []
+        led_list = []
+        for i in range(len(boundRect)):
+            img_quar = img[boundRect[i][1]:boundRect[i][1] + boundRect[i][3],
+                       boundRect[i][0]:boundRect[i][0] + boundRect[i][2] // 2]
+            hsv = cv2.cvtColor(img_quar, cv2.COLOR_BGR2HSV)
+            H, S, V = cv2.split(hsv)
+            # print("HSV", H, S, V)
+            v = V.ravel()[np.flatnonzero(V)]  # 亮度非零的值
+            average_v = sum(v) / len(v)
+            print("average_v", average_v)
+            if average_v < 125:
+                led_list.insert(i, '灭')
+            else:
+                led_list.insert(i, '亮')
+        print("led_list", led_list)
+        if len(led_list) != 6:
+            led_list = [' ', ' ',' ',' ', ' ', ' ' ]
+        return led_list
+    else:
+        led_list = ['灭', '灭', '灭', '灭', '灭', '灭']
+        return led_list
 
 
-
+#图三的分割有问题
 def digit_recog(digit_image):
     digit_list = []
-    for i in range(len(digit_image) ):
-        # #cv2.imshow#('obj_digit{}'.format(i),digit_image[i])
+    for i in range(len(digit_image)-1 ):
+        # cv2.imshow('obj_digit{}'.format(i),digit_image[i])
         digit_list.append(recognition.digit_detect(digit_image[i]))
     print(digit_list)
     return digit_list
+def digit_split(img, last_location):
+    h, w = gain_h_and_w(img)
+    digit_location = [last_location[0] , last_location[1]-last_location[3]//2*3, last_location[2],last_location[3]//2*4]
+    print("handcar_", digit_location)
+    digit_img = img[digit_location[1]:digit_location[1] + digit_location[3],digit_location[0]:digit_location[0] + digit_location[2]]
+    cv2.imshow("digit", digit_img)
+    return digit_img, digit_location
+
+def getcode_area(img2, code_info):
+    print(code_info.points)
+    code_area = np.array(code_info.points)
+    max_index = np.argmax(code_info.points, axis=0)
+    min_index = np.argmin(code_info.points, axis=0)
+    print(max)
+    print(min)
+    x_min = int(code_area[min_index[0]][0])
+    y_min = int(code_area[min_index[1]][1])
+    x_max = int(code_area[max_index[0]][0])
+    y_max = int(code_area[max_index[1]][1])
+    w = x_max - x_min
+    h = y_max - y_min
+    code_img = img2[y_min - h//4 :y_max + h//4, x_min - w//4:x_max + w//4]
+    cv2.imshow("code_img",code_img)
+    getcode_location = [x_min - w//4, y_min - h//4, x_max-x_min+w//2, y_max-y_min+h//2]
+    return code_img, getcode_location
+    # print(x_min, y_min)
 
 def tran(list):
     list_str = str(list).replace("[", "").replace("]", "")
     return eval(f"[{list_str}]")
 
-def Point_eighteen(file_name1, file_name2):
-    img1 = cv2.imread(file_name1)
+def Point_eighteen(file_name2, code_info):
+    # img1 = cv2.imread(file_name1)
     img2 = cv2.imread(file_name2)
+    img2 = img2[:, img2.shape[1] // 4:img2.shape[1] // 4 * 3]
+    _, code_area = getcode_area(img2,code_info)
+
     Point_list = []
     # num_img = dispatchNum_split(img1)
+    # # cv2.imshow("num", num_img)
     # Point_list.append(dispatchNum_recog(num_img))
-    L_led_img = L_led_split(img2)
+    L_led_img, L_led_area = L_led_split(img2)
+    # # cv2.imshow("L-le_img",L_led_img)
     Point_list.append(L_led_recog(L_led_img))
-    b_w_key_list, b_w_key_area = b_w_key_split(img2)
-    Point_list.append(b_w_key_list)
-    handcar_img = handcar_split(img2, b_w_key_area)
-    #cv2.imshow#("handcar", handcar_img)
-    Point_list.append(handcar_recog(handcar_img))
-    # digit_image = split.detect_and_split_1(img2)
-    # Point_list.append(digit_recog(digit_image))
-
-
+    yuanfang_img, yuhe_img = APTkey_split(img2, L_led_area)
+    # cv2.imshow("yuanfnag",yuanfang_img)
+    Point_list.append(APTkey_yuanfang_recogn(yuanfang_img))
+    Point_list.append(APTkey_yuhe_recogn(yuhe_img))
+    lianpian_img, lianpian_area = lianpian_split(img2)
+    Point_list.append(lianpian_recog(lianpian_img))
+    b_w_key_img, b_w_key_area = b_w_key_split2(img2, lianpian_area)
+    Point_list.append(b_w_key_recog2(b_w_key_img))
+    instruct_led_img, instruct_led_area = instruct_led_split(img2, b_w_key_area)
+    Point_list.append(instruct_led_recogn(instruct_led_img))
+    handcar_img, handcar_area = handcar_split(img2, instruct_led_area)
+    Point_list.append(handcar_led_recog(handcar_img))
+    running_led_img, running_led_area = running_led_split(img2, handcar_area)
+    Point_list.append(running_led_recog(running_led_img))
+    # digit_img, _= digit_split(img2,handcar_area)
+    # # num = dispatchNum_recog(digit_img)
+    # # print("num",num)
+    # digit_image_ = split.detect_and_split_1(img2)
+    # print(digit_image_)
+    # cv2.imshow("dig",digit_image_)
+    #
+    # # Point_list.append(digit_recog(digit_image_))
 
     print("point_eighteen:",Point_list)
     return tran(Point_list)
 
 
-# if __name__ == "__main__":
-#     file_name = 'E:\\desktop\\images2\\8-2.JPG'
-#     # A = Repetition(file_name)
-#     key, area = b_w_key_split(file_name)
-#     print("key",key)
-#     # # print("area",area)
-#     # img = handcar_split(file_name, area[0])
+# if __name__ == '__main__':
+#     file_name = 'E:\\desktop\\images2\\3-2.JPG'
+#     img, lianpian_area = lianpian_split(file_name)
+#     # cv2.imshow("out", img)
+#     list = lianpian_recog(img)
+#     # _, key_area = b_w_key_split2(file_name,lianpian_area)
+#     # # key = b_w_key_recogn2(img)
+#     # _, led_area = instruct_led_split(file_name,  key_area)
+#     # instruct_led_recogn(img)
+#     # img, handcar_led_area = thr_handcar_split(file_name, led_area)
 #     # handcar_led_recog(img)
-#     # img = cv2.imread(file_name)
-#     # img = find_squares(file_name)
-#     # img = led_split(file_name)
-#     # L_led_recog(img)
-#     # A = Repetition(file_name)
-#     # img = A.num_split()
-#     # image_out = DispatchNum(file_name)
-#     # img = image_out.num_split()
-#     # #cv2.imshow#("out", img)
+#     # img = yunxing_led_split(file_name, handcar_led_area)
+#     # yunxing_led_recog(img)
+#
+#     # print(key)
+#     # cv2.imshow("img",img)
+#     # APTkey_recogn(img)
 #     cv2.waitKey(0)
 #     cv2.destroyAllWindows()
-
-

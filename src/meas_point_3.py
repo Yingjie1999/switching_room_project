@@ -451,7 +451,7 @@ def lianpian_split(img):
     print("maxindex:",maxindex)
     black_area = boundRect[0]
     black_img = image_split[boundRect[0][1]:boundRect[0][1]+boundRect[0][3],boundRect[0][0]:boundRect[0][0]+boundRect[0][2]]
-    cv2.imshow("black_iimg",black_img)
+    # cv2.imshow("black_iimg",black_img)
     lianpian_area = [black_area[0]-black_area[2]//2,black_area[1]-black_area[3]*1.5,black_area[2]*2,black_area[3]*1.25]
     lianpian_area = [int (i) for i in lianpian_area]
     print("lianpian",lianpian_area)
@@ -837,11 +837,11 @@ def running_led_recog(img):
     for c in contours:
         x, y, w, h = cv2.boundingRect(c)
         # 一个筛选，可能需要看识别条件而定，有待优化
-        if  h < img.shape[0] * 0.95 and w/h >2.5 and w > img.shape[1]//10 :
+        if  h < img.shape[0] * 0.95 and w/h >2.5 and w > img.shape[1]//5 and w/h<5:
             boundRect.append([x, y, w, h])
             # 画一个方形标注一下，看看圈的范围是否正确
             red_dil = cv2.rectangle(img, (x, y), (x + w//2, y + h), 255, 2)
-            #cv2.imshow#("yunixng_led",red_dil)
+            cv2.imshow("yunixng_led",red_dil)
     if boundRect is not None:
         boundRect = list(set([tuple(t) for t in boundRect]))
         boundRect.sort(key=lambda x: x[1], reverse=False)
@@ -867,6 +867,11 @@ def running_led_recog(img):
         led_list = ['灭', '灭', '灭', '灭', '灭', '灭']
         return led_list
 
+def lianpian_split2(img, code_area):
+    lianpian_area = [code_area[0]+code_area[2]*3, code_area[1]+code_area[3]//2*3, code_area[2]//4*5, code_area[3]//4*3]
+    lianpian_img = img[lianpian_area[1]:lianpian_area[1]+lianpian_area[3], lianpian_area[0]:lianpian_area[0]+lianpian_area[2]]
+    cv2.imshow("lp_area",lianpian_img)
+    return lianpian_img, lianpian_area
 
 #图三的分割有问题
 def digit_recog(digit_image):
@@ -903,6 +908,7 @@ def Point_three(file_name2, code_info):
     Point_list.append(APTkey_yuanfang_recogn(yuanfang_img))
     Point_list.append(APTkey_yuhe_recogn(yuhe_img))
     lianpian_img, lianpian_area = lianpian_split(img2)
+    # lianpian_img, lianpian_area = lianpian_split2(img2, code_area)
     Point_list.append(lianpian_recog(lianpian_img))
     b_w_key_img, b_w_key_area = b_w_key_split2(img2, lianpian_area)
     Point_list.append(b_w_key_recog2(b_w_key_img))
