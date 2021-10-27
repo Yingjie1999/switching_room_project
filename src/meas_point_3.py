@@ -840,8 +840,8 @@ def running_led_recog(img):
         if  h < img.shape[0] * 0.95 and w/h >2.5 and w > img.shape[1]//5 and w/h<5:
             boundRect.append([x, y, w, h])
             # 画一个方形标注一下，看看圈的范围是否正确
-            red_dil = cv2.rectangle(img, (x, y), (x + w//2, y + h), 255, 2)
-            cv2.imshow("yunixng_led",red_dil)
+            # red_dil = cv2.rectangle(img, (x, y), (x + w//3, y + h), 255, 2)
+            # cv2.imshow("yunixng_led",red_dil)
     if boundRect is not None:
         boundRect = list(set([tuple(t) for t in boundRect]))
         boundRect.sort(key=lambda x: x[1], reverse=False)
@@ -850,17 +850,23 @@ def running_led_recog(img):
         led_list = []
         for i in range(len(boundRect)):
             img_quar = img[boundRect[i][1]:boundRect[i][1] + boundRect[i][3],
-                       boundRect[i][0]:boundRect[i][0] + boundRect[i][2] // 2]
+                       boundRect[i][0]:boundRect[i][0] + boundRect[i][2] //2]
+            img_er = image_er[boundRect[i][1]:boundRect[i][1] + boundRect[i][3],
+                       boundRect[i][0]:boundRect[i][0] + boundRect[i][2] //2]
             hsv = cv2.cvtColor(img_quar, cv2.COLOR_BGR2HSV)
             H, S, V = cv2.split(hsv)
             # print("HSV", H, S, V)
             v = V.ravel()[np.flatnonzero(V)]  # 亮度非零的值
             average_v = sum(v) / len(v)
             print("average_v", average_v)
-            if average_v < 142:
-                led_list.insert(i, '灭')
-            else:
+            black = len(img_er[img_er == 0])
+            white = len(img_er[img_er == 255])
+            print("black:", black)
+            print("white:", white)
+            if average_v > 125 and black/white < 2:
                 led_list.insert(i, '亮')
+            else:
+                led_list.insert(i, '灭')
         print("led_list", led_list)
         return led_list
     else:

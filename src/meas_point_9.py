@@ -1,4 +1,5 @@
 import cv2
+import breaker
 import os
 import numpy as np
 from repetition import Repetition
@@ -409,46 +410,33 @@ def tran(list):
     list_str = str(list).replace("[", "").replace("]", "")
     return eval(f"[{list_str}]")
 
-def Point_nine(file_name1, file_name2):
-    img1 = cv2.imread(file_name1)
-    img2 = cv2.imread(file_name2)
-    Point_list = []
-    # num_img = dispatchNum_split(img1)
-    # Point_list.append(dispatchNum_recog(num_img))
-    L_led_img = L_led_split(img2)
-    Point_list.append(L_led_recog(L_led_img))
-    b_w_key_list, b_w_key_area = b_w_key_split(img2)
-    Point_list.append(b_w_key_list)
-    handcar_img = handcar_split(img2, b_w_key_area)
-    #cv2.imshow#("handcar", handcar_img)
-    Point_list.append(handcar_recog(handcar_img))
-    # digit_image = split.detect_and_split_1(img2)
-    # Point_list.append(digit_recog(digit_image))
+# def Point_nine(file_name1, file_name2):
+#     img1 = cv2.imread(file_name1)
+#     img2 = cv2.imread(file_name2)
+#     Point_list = []
+#     # num_img = dispatchNum_split(img1)
+#     # Point_list.append(dispatchNum_recog(num_img))
+#     L_led_img = L_led_split(img2)
+#     Point_list.append(L_led_recog(L_led_img))
+#     b_w_key_list, b_w_key_area = b_w_key_split(img2)
+#     Point_list.append(b_w_key_list)
+#     handcar_img = handcar_split(img2, b_w_key_area)
+#     #cv2.imshow#("handcar", handcar_img)
+#     Point_list.append(handcar_recog(handcar_img))
+#     # digit_image = split.detect_and_split_1(img2)
+#     # Point_list.append(digit_recog(digit_image))
+#
+#     print("point_eight:",Point_list)
+#     return tran(Point_list)
 
 
 
-    print("point_eight:",Point_list)
-    return tran(Point_list)
 
-
-# if __name__ == "__main__":
-#     file_name = 'E:\\desktop\\images2\\8-2.JPG'
-#     # A = Repetition(file_name)
-#     key, area = b_w_key_split(file_name)
-#     print("key",key)
-#     # # print("area",area)
-#     # img = handcar_split(file_name, area[0])
-#     # handcar_led_recog(img)
-#     # img = cv2.imread(file_name)
-#     # img = find_squares(file_name)
-#     # img = led_split(file_name)
-#     # L_led_recog(img)
-#     # A = Repetition(file_name)
-#     # img = A.num_split()
-#     # image_out = DispatchNum(file_name)
-#     # img = image_out.num_split()
-#     # #cv2.imshow#("out", img)
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()
-
-
+def Point_nine(img_path, code_info):
+    img = cv2.imread(img_path)
+    img2 = img[:, img.shape[1] // 4:img.shape[1] // 4 * 3]
+    default_list = ['灭', '灭', '灭', '就地', '预合分后', '分', '分', '开', '开', '灭', '灭', '灭', ' ', ' ', ' ', '灭', '灭', '灭', '灭',
+                      '灭', '灭']
+    Point_info = breaker.Breaker(img2, code_info)
+    Point_list = Point_info.split_and_recog(default_list)
+    return Point_list

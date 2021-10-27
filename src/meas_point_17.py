@@ -1,4 +1,5 @@
 import copy
+import breaker
 
 import cv2
 import numpy as np
@@ -863,27 +864,13 @@ def Point_seventeen(file_name1, file_name2):
     # digit_img = split.detect_and_split_1(img2)
     # Point_list.append(digit_recog(digit_img))
     return tran(Point_list)
-
-
     print("point_two:",Point_list)
 
-
-#
-# if __name__ == '__main__':
-#     file_name = 'E:\\desktop\\images2\\2-2.JPG'
-#     _, lianpian_area = lianpian_split(file_name)
-#     # list = lianpian_recog(img)
-#     img, key_area = b_w_key_split2(file_name,lianpian_area)
-#     # key = b_w_key_recogn2(img)
-#     _, led_area = instruct_led_split(file_name,  key_area)
-#     # instruct_led_recogn(img)
-#     _, handcar_led_area = handcar_split(file_name, led_area)
-#     # handcar_led_recog(img)
-#     img = yunxing_led_split(file_name, handcar_led_area)
-#     yunxing_led_recog(img)
-#
-#     # print(key)
-#     # #cv2.imshow#("img",img)
-#     # APTkey_recogn(img)
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()
+def Point_seventeen(img_path, code_info):
+    img = cv2.imread(img_path)
+    img2 = img[:, img.shape[1] // 4:img.shape[1] // 4 * 3]
+    default_list = ['灭', '灭', '灭', '就地', '预合分后', '分', '分', '开', '开', '灭', '灭', '灭', ' ', ' ', ' ', '灭', '灭', '灭', '灭',
+                      '灭', '灭']
+    Point_info = breaker.Breaker(img2, code_info)
+    Point_list = Point_info.split_and_recog(default_list)
+    return Point_list

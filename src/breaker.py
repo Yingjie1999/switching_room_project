@@ -11,6 +11,7 @@ class Breaker(object):
         self.img = img
         self.code_info = code_info
         self.result = []
+        self.lianpian_num = {'20':3, '21':2, '19':2, '18':2, '17':2, '16':2, '15':2, '14':2, '13':2, '11':4, '10':2, '9':2}
 
     def gain_h_and_w(self, img):
         h = img.shape[0]
@@ -170,14 +171,15 @@ class Breaker(object):
         # cv2.imshow("gray", gray)
         ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
         canny = cv2.Canny(image_er, 50, 150)
-        circles = cv2.HoughCircles(canny, cv2.HOUGH_GRADIENT, 1, 35, param1=300, param2=20, minRadius=0,
+        circles = cv2.HoughCircles(canny, cv2.HOUGH_GRADIENT, 1, 35, param1=300, param2=24, minRadius=0,
                                    maxRadius=image_er.shape[0] // 4)
         led_list = ['灭', '灭', '灭']
         if circles is not None:
             circles = np.uint16(np.around(circles))  # around对数据四舍五入，为整数
             for i in circles[0, :]:
                 cv2.circle(image, (i[0], i[1]), i[2], (0, 0, 255), 2)  # 画圆
-                cv2.circle(image, (i[0], i[1]), 2, (0, 0, 255), 2)  # 画圆心
+                # cv2.circle(image, (i[0], i[1]), 2, (0, 0, 255), 2)  # 画圆心
+            cv2.imshow("yuanxin", image)
             print(circles)
 
             for i in range(len(circles[0])):
@@ -254,6 +256,13 @@ class Breaker(object):
         else:
             return '预合分后'
 
+    def getlianpian_num(self):
+        serial_num = self.code_info.parsed
+        num = self.lianpian_num[serial_num]
+        return num
+
+
+
     def lianpian_recog(self, image):
         img = image
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -296,8 +305,11 @@ class Breaker(object):
                     lianpian_list.insert(i, '分')
                 print(boundRect[i][2] / boundRect[i][3])
             print("lianpian:", lianpian_list)
-            if len(lianpian_list) != 2:
-                lianpian_list = [' ', ' ']
+            if len(lianpian_list) != self.getlianpian_num():
+                lianpian_list = []
+                for i in range(self.getlianpian_num()):
+                    lianpian_list.append(' ')
+                # lianpian_list = [' ', ' ']
             return lianpian_list
         else:
             lianpian_list = [' ', ' ']
@@ -358,6 +370,7 @@ class Breaker(object):
         else:
             key_list = [' ', ' ']
             return key_list
+
     def indicator_led_recog(self, img):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         gray = cv2.medianBlur(gray, 3)
@@ -472,7 +485,14 @@ class Breaker(object):
                 else:
                     indicator_list.append(" ")
             print("indicator_list:", indicator_list)
-            if len(indicator_list) != 3:
+            print(self.code_info.parsed, len(indicator_list))
+            if len(indicator_list) == 2 and int(self.code_info.parsed) == 11 :
+                return indicator_list
+            else:
+                indicator_list = [' ', ' ']
+            if len(indicator_list) == 3:
+                return indicator_list
+            else:
                 indicator_list = [' ', ' ', ' ']
             return indicator_list
         else:
@@ -497,7 +517,7 @@ class Breaker(object):
             if h < img.shape[0] * 0.95 and w / h > 2.5 and w > img.shape[1] // 5 and w / h < 5:
                 boundRect.append([x, y, w, h])
                 # 画一个方形标注一下，看看圈的范围是否正确
-                red_dil = cv2.rectangle(img, (x, y), (x + w // 2, y + h), 255, 2)
+                red_dil = cv2.rectangle(img, (x, y), (x + w // 3, y + h), 255, 2)
                 cv2.imshow("yunixng_led", red_dil)
         if boundRect is not None:
             boundRect = list(set([tuple(t) for t in boundRect]))
@@ -507,17 +527,23 @@ class Breaker(object):
             led_list = []
             for i in range(len(boundRect)):
                 img_quar = img[boundRect[i][1]:boundRect[i][1] + boundRect[i][3],
-                           boundRect[i][0]:boundRect[i][0] + boundRect[i][2] // 2]
+                           boundRect[i][0]:boundRect[i][0] + boundRect[i][2] // 3]
                 hsv = cv2.cvtColor(img_quar, cv2.COLOR_BGR2HSV)
+                img_er = image_er[boundRect[i][1]:boundRect[i][1] + boundRect[i][3],
+                         boundRect[i][0]:boundRect[i][0] + boundRect[i][2] // 2]
                 H, S, V = cv2.split(hsv)
                 # print("HSV", H, S, V)
                 v = V.ravel()[np.flatnonzero(V)]  # 亮度非零的值
                 average_v = sum(v) / len(v)
                 print("average_v", average_v)
-                if average_v < 125:
-                    led_list.insert(i, '灭')
-                else:
+                black = len(img_er[img_er == 0])
+                white = len(img_er[img_er == 255])
+                print("black:", black)
+                print("white:", white)
+                if average_v > 125 and black/white < 1.75 :     #不同环境不一样
                     led_list.insert(i, '亮')
+                else:
+                    led_list.insert(i, '灭')
             print("led_list", led_list)
             if len(led_list) != 6:
                 led_list = [' ', ' ', ' ', ' ', ' ', ' ']
@@ -526,10 +552,16 @@ class Breaker(object):
             led_list = ['灭', '灭', '灭', '灭', '灭', '灭']
             return led_list
 
-    def split_and_recog(self):
+    def tran(self, list):
+        list_str = str(list).replace("[", "").replace("]", "")
+        return eval(f"[{list_str}]")
+
+    def split_and_recog(self, default_list):
         _, code_location = self.getcode_area()
         L1toL3Led_img, L1toL3Led_location = self.L1toL3Led_split()
         self.result.append(self.L1toL3led_recog(L1toL3Led_img))
+        if self.result == [['灭', '灭', '灭']]:
+            return default_list
         yuanfangimg, yuhe_img = self.APTkey_split(L1toL3Led_location)
         self.result.append(self.APTkey_yuanfang_recogn(yuanfangimg))
         self.result.append(self.APTkey_yuhe_recogn(yuhe_img))
@@ -543,17 +575,19 @@ class Breaker(object):
         self.result.append(self.position_indicator_led_recog(position_led_img))
         running_led_img, _ = self.running_led_split(code_location)
         self.result.append(self.running_led_recog(running_led_img))
-
+        self.getlianpian_num()
         print("LIST:", self.result)
+        return self.tran(self.result)
 
-if __name__ == "__main__":
-    file_path = 'C:\\Users\\SONG\\Desktop\\image6\\22_14_28_770.jpg'
-    img = cv2.imread(file_path)
-    img2 = img[:, img.shape[1] // 4:img.shape[1] // 4 * 3]
-    code_info = code_recog.ocr_qrcode_zxing(file_path)
-    print(code_info)
-    Point = Breaker(img2, code_info)
-    Point.split_and_recog()
 
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+# if __name__ == "__main__":
+#     file_path = 'C:\\Users\\SONG\\Desktop\\image6\\22_14_28_770.jpg'
+#     img = cv2.imread(file_path)
+#     img2 = img[:, img.shape[1] // 4:img.shape[1] // 4 * 3]
+#     code_info = code_recog.ocr_qrcode_zxing(file_path)
+#     print(code_info)
+#     Point = Breaker(img2, code_info)
+#     Point.split_and_recog()
+#
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()

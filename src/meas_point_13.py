@@ -1,4 +1,5 @@
 import cv2
+import breaker
 import os
 import numpy as np
 import copy
@@ -490,49 +491,31 @@ def tran(list):
     list_str = str(list).replace("[", "").replace("]", "")
     return eval(f"[{list_str}]")
 
-def Point_thirteen(file_name1, file_name2):
-    img1 = cv2.imread(file_name1)
-    img2 = cv2.imread(file_name2)
-    Point_list = []
-    # num_img = dispatchNum_split(img1)
-    # Point_list.append(dispatchNum_recog(num_img))
-    L_led_img, L_led_area = L_led_split(img2)
-    Point_list.append(L_led_recog(L_led_img))
-    lianpian_img, lianpian_area = lianpian5_split(img2, L_led_area)
-    Point_list.append(lianpian5_recog(lianpian_img))
-    b_w_key_img, b_w_key_area = b_w_key_split(img2, lianpian_area)
-    Point_list.append(b_w_key_recog(b_w_key_img))
-    handcar_img, handcar_area= handcar_led_split(img2, b_w_key_area)
-    Point_list.append(handcar_led_recog(handcar_img))
-    running_img,running_area = running_led_split(img2, handcar_area)
-    Point_list.append(running_led_recog(running_img))
-
-    print("Point_thirteen:", Point_list)
-    return tran(Point_list)
-
-
-
-
+# def Point_thirteen(file_name1, file_name2):
+#     img1 = cv2.imread(file_name1)
+#     img2 = cv2.imread(file_name2)
+#     Point_list = []
+#     # num_img = dispatchNum_split(img1)
+#     # Point_list.append(dispatchNum_recog(num_img))
+#     L_led_img, L_led_area = L_led_split(img2)
+#     Point_list.append(L_led_recog(L_led_img))
+#     lianpian_img, lianpian_area = lianpian5_split(img2, L_led_area)
+#     Point_list.append(lianpian5_recog(lianpian_img))
+#     b_w_key_img, b_w_key_area = b_w_key_split(img2, lianpian_area)
+#     Point_list.append(b_w_key_recog(b_w_key_img))
+#     handcar_img, handcar_area= handcar_led_split(img2, b_w_key_area)
+#     Point_list.append(handcar_led_recog(handcar_img))
+#     running_img,running_area = running_led_split(img2, handcar_area)
+#     Point_list.append(running_led_recog(running_img))
 #
-# if __name__ == "__main__":
-#     file_name = 'E:\\desktop\\images2\\13-2.JPG'
-#     _, led_area = led_split(file_name)
-#     # led = L_led_recog(img)
-#     _, lianpian_area= lianpian5_split(file_name,led_area)
-#     # b_w_key_split(file_name)
-#     # lianpian5_recog(img)
-#     _, b_a_w_area =  b_a_w_split(file_name, lianpian_area)
-#     # b_a_w_recog(img)
-#     _, handcar_led_area = handcar_led_split(file_name, b_a_w_area)
-#     # handcar_led_recog(img)
-#     img, instr_area =  yunxing_led_split(file_name,handcar_led_area)
-#     yunxing_led_recog(img)
-#     # A = Repetition(file_name)
-#     # img = A.num_split()
-#     # image_out = DispatchNum(file_name)
-#     # img = image_out.num_split()
-#     # #cv2.imshow#("out", img)
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()
+#     print("Point_thirteen:", Point_list)
+#     return tran(Point_list)
 
-
+def Point_thirteen(img_path, code_info):
+    img = cv2.imread(img_path)
+    img2 = img[:, img.shape[1] // 4:img.shape[1] // 4 * 3]
+    default_list = ['灭', '灭', '灭', '就地', '预合分后', '分', '分', '开', '开', '灭', '灭', '灭', ' ', ' ', ' ', '灭', '灭', '灭', '灭',
+                      '灭', '灭']
+    Point_info = breaker.Breaker(img2, code_info)
+    Point_list = Point_info.split_and_recog(default_list)
+    return Point_list

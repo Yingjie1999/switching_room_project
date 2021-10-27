@@ -3,6 +3,7 @@ import numpy as np
 import os
 import recognition
 import split
+import breaker
 
 # def ##cvshow1000##(name, img):
 #      #cv2.namedWindow#(name, cv2.WINDOW_NORMAL)
@@ -928,36 +929,36 @@ def tran(list):
     list_str = str(list).replace("[", "").replace("]", "")
     return eval(f"[{list_str}]")
 
-def Point_seven(file_name2, code_info):
-    # img1 = cv2.imread(file_name1)
-    img2 = cv2.imread(file_name2)
-    img2 = img2[:, img2.shape[1] // 4:img2.shape[1] // 4 * 3]
-    _, code_area = getcode_area(img2,code_info)
-
-    Point_list = []
-    L_led_img, L_led_area = L_led_split(img2)
-    L_led_list = L_led_recog(L_led_img)
-    if L_led_list == ['灭', '灭', '灭']:
-        Point_list = ['灭', '灭', '灭', '就地', '预合分后', '分', '分', '开', '开', '灭', '灭', '灭', ' ', ' ', ' ', '灭', '灭', '灭', '灭',
-                      '灭', '灭']
-        return Point_list
-    else:
-        Point_list.append(L_led_recog(L_led_img))
-        yuanfang_img, yuhe_img = APTkey_split(img2, L_led_area)
-        Point_list.append(APTkey_yuanfang_recogn(yuanfang_img))
-        Point_list.append(APTkey_yuhe_recogn(yuhe_img))
-        lianpian_img, lianpian_area = lianpian_split(img2)
-        Point_list.append(lianpian_recog(lianpian_img))
-        b_w_key_img, b_w_key_area = b_w_key_split2(img2, code_area)
-        Point_list.append(b_w_key_recog2(b_w_key_img))
-        instruct_led_img, instruct_led_area = instruct_led_split(img2, code_area)
-        Point_list.append(instruct_led_recogn(instruct_led_img))
-        handcar_img, handcar_area = handcar_split(img2, code_area)
-        Point_list.append(handcar_led_recog(handcar_img))
-        running_led_img, running_led_area = running_led_split(img2, code_area)
-        Point_list.append(running_led_recog(running_led_img))
-        print("point_eighteen:", Point_list)
-        return tran(Point_list)
+# def Point_seven(file_name2, code_info):
+#     # img1 = cv2.imread(file_name1)
+#     img2 = cv2.imread(file_name2)
+#     img2 = img2[:, img2.shape[1] // 4:img2.shape[1] // 4 * 3]
+#     _, code_area = getcode_area(img2,code_info)
+#
+#     Point_list = []
+#     L_led_img, L_led_area = L_led_split(img2)
+#     L_led_list = L_led_recog(L_led_img)
+#     if L_led_list == ['灭', '灭', '灭']:
+#         Point_list = ['灭', '灭', '灭', '就地', '预合分后', '分', '分', '开', '开', '灭', '灭', '灭', ' ', ' ', ' ', '灭', '灭', '灭', '灭',
+#                       '灭', '灭']
+#         return Point_list
+#     else:
+#         Point_list.append(L_led_recog(L_led_img))
+#         yuanfang_img, yuhe_img = APTkey_split(img2, L_led_area)
+#         Point_list.append(APTkey_yuanfang_recogn(yuanfang_img))
+#         Point_list.append(APTkey_yuhe_recogn(yuhe_img))
+#         lianpian_img, lianpian_area = lianpian_split(img2)
+#         Point_list.append(lianpian_recog(lianpian_img))
+#         b_w_key_img, b_w_key_area = b_w_key_split2(img2, code_area)
+#         Point_list.append(b_w_key_recog2(b_w_key_img))
+#         instruct_led_img, instruct_led_area = instruct_led_split(img2, code_area)
+#         Point_list.append(instruct_led_recogn(instruct_led_img))
+#         handcar_img, handcar_area = handcar_split(img2, code_area)
+#         Point_list.append(handcar_led_recog(handcar_img))
+#         running_led_img, running_led_area = running_led_split(img2, code_area)
+#         Point_list.append(running_led_recog(running_led_img))
+#         print("point_eighteen:", Point_list)
+#         return tran(Point_list)
     # digit_img, _= digit_split(img2,handcar_area)
     # # num = dispatchNum_recog(digit_img)
     # # print("num",num)
@@ -967,24 +968,12 @@ def Point_seven(file_name2, code_info):
     #
     # # Point_list.append(digit_recog(digit_image_))
 
+def Point_seven(img_path, code_info):
+    img = cv2.imread(img_path)
+    img2 = img[:, img.shape[1] // 4:img.shape[1] // 4 * 3]
+    default_list = ['灭', '灭', '灭', '就地', '预合分后', '分', '分', '开', '开', '灭', '灭', '灭', ' ', ' ', ' ', '灭', '灭', '灭', '灭',
+                      '灭', '灭']
+    Point_info = breaker.Breaker(img2, code_info)
+    Point_list = Point_info.split_and_recog(default_list)
+    return Point_list
 
-
-# if __name__ == '__main__':
-#     file_name = 'E:\\desktop\\images2\\3-2.JPG'
-#     img, lianpian_area = lianpian_split(file_name)
-#     # cv2.imshow("out", img)
-#     list = lianpian_recog(img)
-#     # _, key_area = b_w_key_split2(file_name,lianpian_area)
-#     # # key = b_w_key_recogn2(img)
-#     # _, led_area = instruct_led_split(file_name,  key_area)
-#     # instruct_led_recogn(img)
-#     # img, handcar_led_area = thr_handcar_split(file_name, led_area)
-#     # handcar_led_recog(img)
-#     # img = yunxing_led_split(file_name, handcar_led_area)
-#     # yunxing_led_recog(img)
-#
-#     # print(key)
-#     # cv2.imshow("img",img)
-#     # APTkey_recogn(img)
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()
