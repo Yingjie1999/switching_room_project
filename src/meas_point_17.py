@@ -1,4 +1,5 @@
 import copy
+import handcart
 import breaker
 
 import cv2
@@ -838,39 +839,37 @@ def tran(list):
     list_str = str(list).replace("[", "").replace("]", "")
     return eval(f"[{list_str}]")
 
-def Point_seventeen(file_name1, file_name2):
-    img1 = cv2.imread(file_name1)
-    img2 = cv2.imread(file_name2)
-    Point_list = []
-    # num_img = dispatchNum_split(img1)
-    # # #cv2.imshow#("num", num_img)
-    # Point_list.append(dispatchNum_recog(num_img))
-    L_led_img = L_led_split(img2)
-    Point_list.append(L_led_recog(L_led_img))
-    yuanfang_img, yuhe_img = APTkey_split(img2)
-    #cv2.imshow#("yuanfnag",yuanfang_img)
-    Point_list.append(APTkey_yuanfang_recogn(yuanfang_img))
-    Point_list.append(APTkey_yuhe_recogn(yuhe_img))
-    lianpian_img, lianpian_area = lianpian_split(img2)
-    Point_list.append(lianpian_recog(lianpian_img))
-    b_w_key_img, b_w_key_area = b_w_key_split2(img2, lianpian_area)
-    Point_list.append(b_w_key_recog2(b_w_key_img))
-    instruct_led_img, instruct_led_area = instruct_led_split(img2, b_w_key_area)
-    Point_list.append(instruct_led_recogn(instruct_led_img))
-    handcar_img, handcar_area = handcar_split(img2, instruct_led_area)
-    Point_list.append(handcar_led_recog(handcar_img))
-    running_led_img, running_led_area = running_led_split(img2, handcar_area)
-    Point_list.append(running_led_recog(running_led_img))
-    # digit_img = split.detect_and_split_1(img2)
-    # Point_list.append(digit_recog(digit_img))
-    return tran(Point_list)
-    print("point_two:",Point_list)
+# def Point_seventeen(file_name1, file_name2):
+#     img1 = cv2.imread(file_name1)
+#     img2 = cv2.imread(file_name2)
+#     Point_list = []
+#     # num_img = dispatchNum_split(img1)
+#     # # #cv2.imshow#("num", num_img)
+#     # Point_list.append(dispatchNum_recog(num_img))
+#     L_led_img = L_led_split(img2)
+#     Point_list.append(L_led_recog(L_led_img))
+#     yuanfang_img, yuhe_img = APTkey_split(img2)
+#     #cv2.imshow#("yuanfnag",yuanfang_img)
+#     Point_list.append(APTkey_yuanfang_recogn(yuanfang_img))
+#     Point_list.append(APTkey_yuhe_recogn(yuhe_img))
+#     lianpian_img, lianpian_area = lianpian_split(img2)
+#     Point_list.append(lianpian_recog(lianpian_img))
+#     b_w_key_img, b_w_key_area = b_w_key_split2(img2, lianpian_area)
+#     Point_list.append(b_w_key_recog2(b_w_key_img))
+#     instruct_led_img, instruct_led_area = instruct_led_split(img2, b_w_key_area)
+#     Point_list.append(instruct_led_recogn(instruct_led_img))
+#     handcar_img, handcar_area = handcar_split(img2, instruct_led_area)
+#     Point_list.append(handcar_led_recog(handcar_img))
+#     running_led_img, running_led_area = running_led_split(img2, handcar_area)
+#     Point_list.append(running_led_recog(running_led_img))
+#     # digit_img = split.detect_and_split_1(img2)
+#     # Point_list.append(digit_recog(digit_img))
+#     return tran(Point_list)
+#     print("point_two:",Point_list)
 
 def Point_seventeen(img_path, code_info):
     img = cv2.imread(img_path)
     img2 = img[:, img.shape[1] // 4:img.shape[1] // 4 * 3]
-    default_list = ['灭', '灭', '灭', '就地', '预合分后', '分', '分', '开', '开', '灭', '灭', '灭', ' ', ' ', ' ', '灭', '灭', '灭', '灭',
-                      '灭', '灭']
-    Point_info = breaker.Breaker(img2, code_info)
-    Point_list = Point_info.split_and_recog(default_list)
+    Point_info = handcart.Handcart(img2, code_info)
+    Point_list = Point_info.split_and_recog()
     return Point_list
