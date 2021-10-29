@@ -319,45 +319,31 @@ def key_recog(img):
 def tran(list):
     list_str = str(list).replace("[", "").replace("]", "")
     return eval(f"[{list_str}]")
+#
+# def Point_twenty_six(file_name1, file_name2, file_name3):
+#     img1 = cv2.imread(file_name1)
+#     img2 = cv2.imread(file_name2)
+#     img3 = cv2.imread(file_name3)
+#     Point_list = []
+#     led_list, area = instruct_led_split_and_recog(img1)
+#     Point_list.append(led_list)
+#     APT_key_img = APTkey_split(img1, area)
+#     Point_list.append(APTkey_recogn(APT_key_img))
+#     # running_led_img = running_led_split(img2)
+#     # Point_list.append(running_led_recog(running_led_img))
+#     # left_img, right_img = key_split(img3)
+#     # Point_list.append(key_recog(left_img))
+#     # Point_list.append(key_recog(right_img))
+#
+#     print("Point_twenty_seven", Point_list)
+#     return tran(Point_list)
 
-def Point_twenty_six(file_name1, file_name2, file_name3):
-    img1 = cv2.imread(file_name1)
-    img2 = cv2.imread(file_name2)
-    img3 = cv2.imread(file_name3)
+def Point_twenty_six(img_path, code_info):
+    img = cv2.imread(img_path)
+    img2 = img[:, img.shape[1] // 4:img.shape[1] // 4 * 3]
     Point_list = []
-    led_list, area = instruct_led_split_and_recog(img1)
-    Point_list.append(led_list)
-    APT_key_img = APTkey_split(img1, area)
-    Point_list.append(APTkey_recogn(APT_key_img))
-    # running_led_img = running_led_split(img2)
-    # Point_list.append(running_led_recog(running_led_img))
-    # left_img, right_img = key_split(img3)
-    # Point_list.append(key_recog(left_img))
-    # Point_list.append(key_recog(right_img))
-
-    print("Point_twenty_seven", Point_list)
+    Point_list.append([' '])
     return tran(Point_list)
 
 
 
-
-# if __name__ == '__main__':
-#     file_name = 'E:\\desktop\\images2\\27-3.JPG'
-#     # img = cv2.imread(file_name)
-#     # img_split = img[img.shape[0]//3*2:img.shape[0], 0:img.shape[1]//2]
-#     # # APTkey_split(file_name)
-#     # instruct_led_recogn(img_split)
-#     # led_list, area = instruct_led_split_and_recog(file_name)
-#     # img = APTkey_split(file_name, area)
-#     # key = APTkey_recogn(img)
-#     # print(key)
-#     # img = run_led_split(file_name)
-#     # run_led_recog(img)
-#     left_img, right_img = key_split(file_name)
-#     # right_img = cv2.imread(file_name)
-#     key = key_recog(left_img)
-#     print("key:",key)
-#
-#     # print(area)
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()

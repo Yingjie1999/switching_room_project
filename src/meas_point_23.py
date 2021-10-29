@@ -12,6 +12,11 @@ import split
 #      cv2.resizeWindow(name, 1000, 750)
 #      #cv2.imshow#(name, img)
 
+def cvshow800(name, img):
+    cv2.namedWindow(name, cv2.WINDOW_NORMAL)
+    cv2.resizeWindow(name, 800, 900)
+    cv2.imshow(name, img)
+
 def gain_h_and_w(img):
     h = img.shape[0]
     w = img.shape[1]
@@ -837,58 +842,202 @@ def digit_recog(digit_image):
     print(digit_list)
     return digit_list
 
+def getcode_area(img, code_info):
+    code_area = np.array(code_info.points)
+    maxindex = np.argmax(code_info.points, axis=0)
+    minindex = np.argmin(code_info.points, axis=0)
+    x_min = int(code_area[minindex[0]][0])
+    y_min = int(code_area[minindex[1]][1])
+    x_max = int(code_area[maxindex[0]][0])
+    y_max = int(code_area[maxindex[1]][1])
+    w = x_max - x_min
+    h = y_max - y_min
+    code_img = img[y_min - h // 4:y_max + h // 4, x_min - w // 4:x_max + w // 4]
+    cv2.imshow("code_img", code_img)
+    code_location = [x_min - w // 4, y_min - h // 4, x_max - x_min + w // 2, y_max - y_min + h // 2]
+    print("getcode_area:", code_location)
+    return code_img, code_location
+
+def judge_pic(img, code_location):
+    if code_location[1] >= 950 and code_location[1] <= 1150:
+        return '1'
+    elif code_location[1] <= 100:
+        return '2'
+    elif code_location[1] >= 1150:
+        return '3'
+    else:
+        return ' '
+
+def knife_switch_split_and_recog(image):
+    img = image
+    # 转到HSV
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    print(hsv)
+
+    # 设置阈值
+    l_blue = np.array([[21, 43, 46]])
+    h_blue = np.array([34, 255, 255])
+
+    # 构建掩模
+    mask = cv2.inRange(hsv, l_blue, h_blue)
+
+    # 进行位运算
+    res = cv2.bitwise_and(img, img, mask=mask)
+    #cvshow1000#("img", img)
+    #cvshow1000#("mask", mask)
+    cvshow800("res", res)
+    gray = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
+    gray = cv2.GaussianBlur(gray, (5, 5), 3)
+    #cvshow1000#("gray", gray)
+    ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
+    #cvshow1000#("er", image_er)
+    contours, hierarchy = cv2.findContours(image_er, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # 找轮廓
+    cv2.drawContours(img, contours, -1, (0, 255, 0), 3)  # 把边缘给画出来
+    #cvshow1000#("bound",img)
+    boundRect = []
+    for c in contours:
+        x, y, w, h = cv2.boundingRect(c)
+        # 一个筛选，可能需要看识别条件而定，有待优化
+        if w/h < 1 and h > img.shape[0]//6:
+            boundRect.append([x, y, w, h])
+            # 画一个方形标注一下，看看圈的范围是否正确
+            red_dil = cv2.rectangle(img, (x, y), (x + w, y + h), 255, 2)
+            print(x, y, w, h)
+            # cv2.imshow("bound", red_dil)
+            cvshow800('bound', red_dil)
+    print(boundRect)
+    if boundRect is not None and len(boundRect)==2 :
+        boundRect.sort(key=lambda x: x[0], reverse=False)
+        print(boundRect)
+        left_area = []
+        right_area = []
+        left_area = [boundRect[0][0] + boundRect[0][2] // 2 * 3, boundRect[0][1], boundRect[0][2], boundRect[0][3]]
+        right_area = [boundRect[1][0] - boundRect[1][2] // 2 * 3, boundRect[1][1], boundRect[1][2], boundRect[1][3]]
+        left_img = image_er[left_area[1]:left_area[1] + left_area[3], left_area[0]:left_area[0] + left_area[2]]
+        right_img = image_er[right_area[1]:right_area[1] + right_area[3], right_area[0]:right_area[0] + right_area[2]]
+        cv2.imshow("left_img", left_img)
+        cv2.imshow("right_img", right_img)
+        left_len_total = left_img.shape[0] * left_img.shape[1]
+        left_len = len(left_img[left_img == 255])
+        right_len_total = right_img.shape[0] * right_img.shape[1]
+        right_len = len(right_img[right_img == 255])
+        print(left_len_total, left_len)
+        print(right_len_total, right_len)
+        knife_switch_list = []
+        if left_len < left_len_total // 15:
+            knife_switch_list.append('下')
+        else:
+            knife_switch_list.append('上')
+        if right_len < right_len_total // 15:
+            knife_switch_list.append('下')
+        else:
+            knife_switch_list.append('上')
+        print(knife_switch_list)  # 1表示黄条没有遮挡，所以开关向上，0表示黄条遮挡，开关向下。
+        return knife_switch_list
+
+def key_split(image):
+    img = image
+    # 转到HSV
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    # 设置阈值
+    l_blue = np.array([[21, 43, 46]])
+    h_blue = np.array([34, 255, 255])
+    # 构建掩模
+    mask = cv2.inRange(hsv, l_blue, h_blue)
+    # 进行位运算
+    res = cv2.bitwise_and(img, img, mask=mask)
+    #cvshow1000#("img", img)
+    #cvshow1000#("mask", mask)
+    #cvshow1000#("res", res)
+    gray = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
+    gray = cv2.GaussianBlur(gray, (5, 5), 3)
+    #cvshow1000#("gray", gray)
+    ret, image_er = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)  # OTSU最大类间方差法
+    #cvshow1000#("er", image_er)
+    contours, hierarchy = cv2.findContours(image_er, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # 找轮廓
+    # cv2.drawContours(img, contours, -1, (0, 255, 0), 3)  # 把边缘给画出来
+    # #cvshow1000#("bound", img)
+    boundRect = []
+    for c in contours:
+        x, y, w, h = cv2.boundingRect(c)
+        # 一个筛选，可能需要看识别条件而定，有待优化
+        if  h < img.shape[0]//2 and w/h > 2.5  and h>10:
+            boundRect.append([x, y, w, h])
+            # 画一个方形标注一下，看看圈的范围是否正确
+            red_dil = cv2.rectangle(img, (x, y), (x + w, y + h), 255, 2)
+            print(x, y, w, h)
+            cvshow800('red_dir', red_dil)
+    if boundRect is not None:
+        boundRect.sort(key=lambda x: x[1], reverse=False)
+        print(boundRect)
+        img_up_area = [boundRect[0][0] - boundRect[0][2] * 8, boundRect[0][1] - boundRect[0][2] * 2,
+                       boundRect[0][2] * 17, boundRect[0][2] * 2]
+        img_up_img = img[img_up_area[1]:img_up_area[1] + img_up_area[3], img_up_area[0]:img_up_area[0] + img_up_area[2]]
+        img_down_area = [boundRect[1][0] - boundRect[1][2] * 8, boundRect[1][1] - boundRect[1][2] * 2,
+                         boundRect[1][2] * 17, boundRect[1][2] * 2]
+        img_down_img = img[img_down_area[1]:img_down_area[1] + img_down_area[3],
+                       img_down_area[0]:img_down_area[0] + img_down_area[2]]
+        cv2.imshow("up", img_up_img)
+        cv2.imshow("down", img_down_img)
+        return img_up_img, img_down_img
+
+
 def tran(list):
     list_str = str(list).replace("[", "").replace("]", "")
     return eval(f"[{list_str}]")
 
-def Point_twenty_three(file_name1, file_name2):
-    img1 = cv2.imread(file_name1)
-    img2 = cv2.imread(file_name2)
+def Point_twenty_three(img_path, code_info):
 
+    img = cv2.imread(img_path)
+    img2 = img[:, img.shape[1] // 4:img.shape[1] // 4 * 3]
     Point_list = []
-    # # num_img = dispatchNum_split(img1)
-    # # # #cv2.imshow#("num", num_img)
-    # # Point_list.append(dispatchNum_recog(num_img))
-    L_led_img = L_led_split(img2)
-    Point_list.append(L_led_recog(L_led_img))
-    yuanfang_img, yuhe_img = APTkey_split(img2)
-    #cv2.imshow#("yuanfnag",yuanfang_img)
-    Point_list.append(APTkey_yuanfang_recogn(yuanfang_img))
-    Point_list.append(APTkey_yuhe_recogn(yuhe_img))
-    lianpian_img, lianpian_area = lianpian_split(img2)
-    Point_list.append(lianpian_recog(lianpian_img))
-    b_w_key_img, b_w_key_area = b_w_key_split2(img2, lianpian_area)
-    Point_list.append(b_w_key_recog2(b_w_key_img))
-    instruct_led_img, instruct_led_area = instruct_led_split(img2, b_w_key_area)
-    Point_list.append(instruct_led_recogn(instruct_led_img))
-    handcar_img, handcar_area = handcar_split(img2, instruct_led_area)
-    Point_list.append(handcar_led_recog(handcar_img))
-    running_led_img, running_led_area = running_led_split(img2, handcar_area)
-    Point_list.append(running_led_recog(running_led_img))
-    # digit_img = split.detect_and_split_1(img2)
-    # Point_list.append(digit_recog(digit_img))
+    _, code_location = getcode_area(img2, code_info)
+    #判断是第几张照片
+    # judge_pic(img2)
+    Point_list.append(judge_pic(img2, code_location))
+    if Point_list[0] == '3':
+        # key_split(img2)
+        list = [' '] * 10
+        Point_list.append(list)
+    if Point_list[0] == '2':
+       # knife_switch_split_and_recog(img2)
+        list = ['上','下']
+        Point_list.append(list)
+    if Point_list[0] == '1':
+        list = [' '] * 12
+        Point_list.append(list)
+    print(Point_list)
     return tran(Point_list)
 
 
-    print("point_two:",Point_list)
 
 
+# def Point_twenty_three(file_name1, file_name2):
+#     img1 = cv2.imread(file_name1)
+#     img2 = cv2.imread(file_name2)
 #
-# if __name__ == '__main__':
-#     file_name = 'E:\\desktop\\images2\\2-2.JPG'
-#     _, lianpian_area = lianpian_split(file_name)
-#     # list = lianpian_recog(img)
-#     img, key_area = b_w_key_split2(file_name,lianpian_area)
-#     # key = b_w_key_recogn2(img)
-#     _, led_area = instruct_led_split(file_name,  key_area)
-#     # instruct_led_recogn(img)
-#     _, handcar_led_area = handcar_split(file_name, led_area)
-#     # handcar_led_recog(img)
-#     img = yunxing_led_split(file_name, handcar_led_area)
-#     yunxing_led_recog(img)
+#     Point_list = []
+#     # # num_img = dispatchNum_split(img1)
+#     # # # #cv2.imshow#("num", num_img)
+#     # # Point_list.append(dispatchNum_recog(num_img))
+#     L_led_img = L_led_split(img2)
+#     Point_list.append(L_led_recog(L_led_img))
+#     yuanfang_img, yuhe_img = APTkey_split(img2)
+#     #cv2.imshow#("yuanfnag",yuanfang_img)
+#     Point_list.append(APTkey_yuanfang_recogn(yuanfang_img))
+#     Point_list.append(APTkey_yuhe_recogn(yuhe_img))
+#     lianpian_img, lianpian_area = lianpian_split(img2)
+#     Point_list.append(lianpian_recog(lianpian_img))
+#     b_w_key_img, b_w_key_area = b_w_key_split2(img2, lianpian_area)
+#     Point_list.append(b_w_key_recog2(b_w_key_img))
+#     instruct_led_img, instruct_led_area = instruct_led_split(img2, b_w_key_area)
+#     Point_list.append(instruct_led_recogn(instruct_led_img))
+#     handcar_img, handcar_area = handcar_split(img2, instruct_led_area)
+#     Point_list.append(handcar_led_recog(handcar_img))
+#     running_led_img, running_led_area = running_led_split(img2, handcar_area)
+#     Point_list.append(running_led_recog(running_led_img))
+#     # digit_img = split.detect_and_split_1(img2)
+#     # Point_list.append(digit_recog(digit_img))
+#     return tran(Point_list)
 #
-#     # print(key)
-#     # #cv2.imshow#("img",img)
-#     # APTkey_recogn(img)
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()
+#     print("point_two:",Point_list)

@@ -113,9 +113,10 @@ if __name__ == '__main__':
             Total_list.append(output)
 
     output_list = copy.deepcopy(Total_list)
+    pop_num = 0
     # 判断两张相同测点照片哪张涵盖信息多
     for i in range(len(Total_list)-1):
-        if Total_list[i][-1] == Total_list[i+1][-1]:
+        if Total_list[i][-1] == Total_list[i+1][-1] and Total_list[i][0] != '1' and Total_list[i][0] != '2' and Total_list[i][0] != '3':
             sum1 = 0 ;sum2 = 0
             for j in Total_list[i]:
                 if j and j is not ' ':
@@ -128,13 +129,47 @@ if __name__ == '__main__':
             len2 = len(Total_list[i+1]) - sum2
             print("len2:",len2)
             if len1 <= len2:
-                output_list.pop(i+1)
+                output_list.pop(i+1-pop_num)
+                pop_num += 1
+                print(pop_num)
             else:
-                output_list.pop(i)
+                output_list.pop(i-pop_num)
+                pop_num += 1
+                print(pop_num)
+        elif Total_list[i][0] == '1':
+            output_list[i].pop(0)
+
+        elif Total_list[i][0] == '2':
+            print('222222')
+            output_list[i-1-pop_num].pop(-1)
+            output_list[i-pop_num].pop(0)
+            output_list[i-1-pop_num] += output_list[i-pop_num]
+            output_list.pop(i-pop_num)
+            pop_num += 1
+            print(pop_num)
+            print(output_list)
+            if Total_list[i+1][0] == '3':
+                print('33332')
+                output_list[i - pop_num].pop(-1)
+                output_list[i + 1 - pop_num].pop(0)
+                output_list[i - pop_num] += output_list[i + 1 - pop_num]
+                output_list.pop(i +1 - pop_num)
+                pop_num += 1
+                print(pop_num)
+
+        # if Total_list[i+1][0] == '3':
+        #     print('33333')
+        #     output_list[i-1-pop_num].pop(-1)
+        #     output_list[i-pop_num].pop(0)
+        #     output_list[i-1-pop_num] += output_list[i-pop_num]
+        #     output_list.pop(i-pop_num)
+        #     pop_num += 1
+        #     print(pop_num)
+        #     print('3')
 
     # for i in range(len(Total_list)):
         # Total_list[i].pop(-1)
-
+    # print("total_list", Total_list)
     print("output_list:", output_list)
     cv2.waitKey(0)
     cv2.destroyAllWindows()

@@ -416,24 +416,14 @@ def Point_twenty_seven(file_name1, file_name2):
     instruct_led_up_img, instruct_led_down_img = instruct_led_split2(img2)
     Point_list.append(instruct_led_recog(instruct_led_up_img))
     Point_list.append(instruct_led_recog(instruct_led_down_img))
-
     # Point_list.append([1, 0])
-
-
-
     print("Point_twenty_seven", Point_list)
     return tran(Point_list)
 
-
-#
-# if __name__ == '__main__':
-#     file_name = 'E:\\desktop\\images2\\28-2.JPG'
-#     # img = cv2.imread(file_name)
-#     # img1, img2 = APT_split(file_name)
-#     # key = APT_jueyuan_recog(img1)
-#     # print("key",key)
-#     # APT_qiehuan_recog(img2)
-#     img1, img2 = instruct_led_split(file_name)
-#     instruct_led_recog(img2)
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()
+def Point_twenty_seven(img_path, code_info):
+    img = cv2.imread(img_path)
+    img2 = img[:, img.shape[1] // 4:img.shape[1] // 4 * 3]
+    default_list = ['亮', '灭', '亮', '灭', '灭', '灭', '灭', '灭', '灭', '灭', '灭', '灭', '灭',
+                    '灭', '灭', '灭', '灭', '灭', '灭', '灭', '灭','亮', '灭',]
+    Point_list = default_list
+    return Point_list

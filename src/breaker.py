@@ -354,7 +354,8 @@ class Breaker(object):
                     # print("line", lines)
                     cv2.imshow("xian,", image_zhong)
                     for x1, y1, x2, y2 in lines[:, 0]:
-                        k.append((y1 - y2) / (x1 - x2))
+                        if x1-x2!=0:
+                            k.append((y1 - y2) / (x1 - x2))
                     k_sum.append(sum(k))
                     k = []
             print(k_sum)
