@@ -1,5 +1,7 @@
 import copy
-
+import toexcel
+import shutil
+import tofile
 import cv2
 import numpy as np
 import code_recog
@@ -97,9 +99,12 @@ switcher = {
 # 根据flag的值决定执行哪一个函数，如果输入的值在字典中没有，则执行get_default函数
 
 if __name__ == '__main__':
-    file_path = 'C:\\Users\\SONG\\Desktop\\image6\\'
+    file_path = 'C:/Users/SONG/Desktop/image6/'
+    excel_save_path = 'D:/10-29.xls'
+    dstpath = 'C:/Users/SONG/Desktop/copy/'
     file_list = code_recog.getfileorder(file_path)
     Total_list = []
+    showpic_num = 0
 
     for i in range(len(file_list)):
         image_path = file_path + file_list[i]
@@ -111,7 +116,12 @@ if __name__ == '__main__':
             output = switcher[code_info.parsed](image_path, code_info)
             output.append(code_info.parsed)
             Total_list.append(output)
-
+            showpic_num += 1
+        else:
+            Total_list.append([' '])
+    # file_list_len = len(file_list)
+    print("show_pic_num:", showpic_num)
+    print(Total_list)
     output_list = copy.deepcopy(Total_list)
     pop_num = 0
     # 判断两张相同测点照片哪张涵盖信息多
@@ -122,20 +132,23 @@ if __name__ == '__main__':
                 if j and j is not ' ':
                     sum1 = sum1+1
             len1 = len(Total_list[i]) - sum1
-            print("len1",len1)
+            # print("len1",len1)
             for j in Total_list[i+1]:
                 if j and j is not ' ':
                     sum2 = sum2+1
             len2 = len(Total_list[i+1]) - sum2
-            print("len2:",len2)
+            # print("len2:",len2)
             if len1 <= len2:
                 output_list.pop(i+1-pop_num)
                 pop_num += 1
                 print(pop_num)
+                tofile.copy_and_move(file_path + file_list[i], dstpath, Total_list[i][-1]+'.jpg')
             else:
                 output_list.pop(i-pop_num)
                 pop_num += 1
                 print(pop_num)
+                tofile.copy_and_move(file_path + file_list[i+1], dstpath, Total_list[i+1][-1]+'.jpg')
+
         elif Total_list[i][0] == '1':
             output_list[i].pop(0)
 
@@ -156,20 +169,15 @@ if __name__ == '__main__':
                 output_list.pop(i +1 - pop_num)
                 pop_num += 1
                 print(pop_num)
+        elif Total_list[i][-1] == ' ':
+            output_list.pop(i)
+            pop_num += 1
+        else:
+            tofile.copy_and_move(file_path + file_list[i], dstpath, Total_list[i][-1]+'.jpg')
 
-        # if Total_list[i+1][0] == '3':
-        #     print('33333')
-        #     output_list[i-1-pop_num].pop(-1)
-        #     output_list[i-pop_num].pop(0)
-        #     output_list[i-1-pop_num] += output_list[i-pop_num]
-        #     output_list.pop(i-pop_num)
-        #     pop_num += 1
-        #     print(pop_num)
-        #     print('3')
 
-    # for i in range(len(Total_list)):
-        # Total_list[i].pop(-1)
-    # print("total_list", Total_list)
+    output_list.sort(key=lambda x: int(x[-1]), reverse=False)
     print("output_list:", output_list)
+    toexcel.write_file(output_list, excel_save_path)
     cv2.waitKey(0)
     cv2.destroyAllWindows()

@@ -6,7 +6,7 @@ import xlrd
 
 def write_file(list, excel_save_path):
 
-    flile_name = "temple.xlsx"
+    flile_name = "C:\\Users\\SONG\\Desktop\\temple2.xlsx"
     # 读取源excel
     xlsx = xlrd.open_workbook(flile_name)
 
@@ -16,15 +16,22 @@ def write_file(list, excel_save_path):
     table = xlsx.sheet_by_index(0)
     rows = table.nrows
     cols = table.ncols
+    print("cols:", cols)
     worksheet = new_workbook.add_sheet("sheet" + str(0), cell_overwrite_ok=True)
-    for i in range(0, rows):
-        for j in range(0, cols):
-            # print(i,j,table.cell_value(i, j))
-            worksheet.write(i, j, table.cell_value(i, j))
+    for j in range(0, len(list)):
+        for i in range(0, cols):
+            # print(i,j,table.cell_value(i, j)
+            # worksheet.write(j, i, table.cell_value(j,i))
+            if int(list[j][-1]) <= 22:
+                worksheet.write(j * 3 + 1, i, table.cell_value((int(list[j][-1]) - 1) * 3 + 1, i))
+                worksheet.write(j*3+2, i, table.cell_value((int(list[j][-1]) - 1) * 3 + 2, i))
 
     for j in range(len(list)):
         for i in range(len(list[j])):
-            worksheet.write((j+1)*4-1, i+3, list[j][i])  # 第0行第0列
+            if int(list[j][-1]) <= 22:
+                # worksheet.write(j*3+1, i, table.cell_value((int(list[j][-1])-1)*3+1, i))
+                # worksheet.write(int(list[j][-1]) * 3 - 1, i, table.cell_value(int(list[j][-1]) * 3 - 2, i))
+                worksheet.write(j*3+2, i+3, list[j][i]) #先行后列
 
 
     new_workbook.save(excel_save_path)
