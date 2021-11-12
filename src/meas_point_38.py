@@ -1,4 +1,5 @@
 import cv2
+import os
 import numpy as np
 from sklearn.cluster import DBSCAN
 import recognition
@@ -14,162 +15,170 @@ def cv2_show(name, img_):
 
 def img38_1(file_path):
     img = cv2.imread(file_path)
+    results = {}
+    h, w = img.shape[:2]
+    box = np.array([0.25*w, 0, 0.75*w, 0.4*h]).astype(np.int) # xmin, ymin, xmax, ymax
+    img = img[box[1]:box[3], box[0]:box[2]]
+    cv2_show('img', img)
     f_xy = 0.2
     img1 = cv2.resize(img.copy(), None, fx=f_xy, fy=f_xy)
-    hsv = cv2.cvtColor(img1, cv2.COLOR_BGR2HSV)  # 色彩空间转换为hsv，便于分离
-    lower_hsv1 = np.array([50, 43, 46]) # 提取颜色的低值 green [35, 43, 46]
-    high_hsv1 = np.array([100, 255, 255]) # 提取颜色的高值 [77, 255, 255]
-    mask1 = cv2.inRange(hsv, lowerb=lower_hsv1, upperb=high_hsv1)
+    hsv = cv2.cvtColor(img1, cv2.COLOR_BGR2HSV) # 色彩空间转换为hsv，便于分离
     lower_hsv1 = np.array([156, 43, 150]) # 提取颜色的低值 red [156, 43, 46]
     high_hsv1 = np.array([180, 255, 255]) # 提取颜色的高值 [180, 255, 255]
     lower_hsv2 = np.array([0, 43, 150]) # 提取颜色的低值 red [0, 43, 46]
     high_hsv2 = np.array([10, 255, 255]) # 提取颜色的高值 [10, 255, 255]
     mask_1 = cv2.inRange(hsv, lowerb=lower_hsv1, upperb=high_hsv1)
     mask_2 = cv2.inRange(hsv, lowerb=lower_hsv2, upperb=high_hsv2)
-    mask2 = cv2.bitwise_or(mask_1, mask_2)
-    mask3 = cv2.bitwise_or(mask1, mask2)
-    #cv2_show#('1', img)
-    #cv2_show#('m1', mask3)
-    X = []
-    for i in range(mask3.shape[0]):
-        for j in range(mask3.shape[1]):
-            if mask3[i, j] > 10: # y x
-                X.append([i, j])
-    X = np.array(X)
-    db = DBSCAN(eps=4, min_samples=5, metric='euclidean') # 密度聚类DBSCAN 半径，样本点数量，欧式距离
-    y_db = db.fit_predict(X)
-    num = {}
-    for i in range(max(y_db)+1):
-        num[i] = len(X[y_db==i, :])
-    num = dict(sorted(num.items(), key=lambda item: item[1], reverse=True)) # 对字典的值排序
-    X_obj = []
-    for key in list(num.keys())[:4]:
-        if num[key] > 150:
-            X_obj.append(np.average(X[y_db == key, :], axis=0))
-        else:
-            raise ValueError("没有拍完整")
-    X_obj = np.array(X_obj)
-    print(X_obj)
-    y, x = np.average(X_obj, axis=0)
-    h, w = img1.shape[:2]
-    box = np.array([[0,0,x,y],[x,0,w,y],[0,y,x,h],[x,y,w,h]]).astype(np.int) # xmin, ymin, xmax, ymax
-    # X_order = []
-    # for i in range(X_obj.shape[0]):
-    #     if X_obj[i, 0] < X_obj_avg[0] and X_obj[i, 1] < X_obj_avg[1]:
-    #         X_order.append(0)
-    #     elif X_obj[i, 0] < X_obj_avg[0] and X_obj[i, 1] > X_obj_avg[1]:
-    #         X_order.append(1)
-    #     elif X_obj[i, 0] > X_obj_avg[0] and X_obj[i, 1] < X_obj_avg[1]:
-    #         X_order.append(2)
-    #     elif X_obj[i, 0] > X_obj_avg[0] and X_obj[i, 1] > X_obj_avg[1]:
-    #         X_order.append(3)
-    # X_obj = X_obj[X_order]
-    results = {}
-    for m in range(4):
-        img2 = img1[box[m, 1]:box[m, 3], box[m, 0]:box[m, 2]]
-        hsv = cv2.cvtColor(img2, cv2.COLOR_BGR2HSV)  # 色彩空间转换为hsv，便于分离
-        lower_hsv1 = np.array([50, 43, 46])  # 提取颜色的低值 green [35, 43, 46]
-        high_hsv1 = np.array([100, 255, 255])  # 提取颜色的高值 [77, 255, 255]
-        mask1 = cv2.inRange(hsv, lowerb=lower_hsv1, upperb=high_hsv1)
-        X = []
-        for i in range(mask1.shape[0]):
-            for j in range(mask1.shape[1]):
-                if mask1[i, j] > 10:  # y x
-                    X.append([i, j])
-        X = np.array(X)
-        results['{}路调度号'.format(m + 1)] = str(435 + m)
-        if len(X)==0:
-            results['{}路合分闸指示'.format(m + 1)] = '红色'
-            results['{}路开关'.format(m + 1)] = 'i'
-            continue
-        db = DBSCAN(eps=4, min_samples=5, metric='euclidean')  # 密度聚类DBSCAN 半径，样本点数量，欧式距离
-        y_db = db.fit_predict(X)
-        num = {}
-        for i in range(max(y_db) + 1):
-            num[i] = len(X[y_db == i, :])
-        num = dict(sorted(num.items(), key=lambda item: item[1], reverse=True))  # 对字典的值排序
-        print(num)
-        if len(num)==0:
-            results['{}路合分闸指示'.format(m + 1)] = '红色'
-            results['{}路开关'.format(m + 1)] = 'i'
-            continue
-        if num[list(num.keys())[0]] > 200:
-            results['{}路合分闸指示'.format(m + 1)] = '绿色'
-            results['{}路开关'.format(m + 1)] = 'o'
-        else:
-            results['{}路合分闸指示'.format(m + 1)] = '红色'
-            results['{}路开关'.format(m + 1)] = 'i'
-        print(num)
-    return results
-
-def img38_2(file_path):
-    img = cv2.imread(file_path)
-    f_xy = 0.2
-    img1 = cv2.resize(img.copy(), None, fx=f_xy, fy=f_xy)
-    hsv = cv2.cvtColor(img1, cv2.COLOR_BGR2HSV)  # 色彩空间转换为hsv，便于分离
-    lower_hsv1 = np.array([156, 60, 100]) # 提取颜色的低值 red [156, 43, 46]
-    high_hsv1 = np.array([180, 255, 255]) # 提取颜色的高值 [180, 255, 255]
-    lower_hsv2 = np.array([0, 60, 100]) # 提取颜色的低值 red [0, 43, 46]
-    high_hsv2 = np.array([10, 255, 255]) # 提取颜色的高值 [10, 255, 255]
-    mask_1 = cv2.inRange(hsv, lowerb=lower_hsv1, upperb=high_hsv1)
-    mask_2 = cv2.inRange(hsv, lowerb=lower_hsv2, upperb=high_hsv2)
     mask1 = cv2.bitwise_or(mask_1, mask_2)
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))  # 定义结构元素的形状和大小
-    mask1 = cv2.dilate(mask1, kernel) # 膨胀操作
-    mask1 = cv2.erode(mask1, kernel) # 腐蚀操作
-    #cv2_show#('1', img)
-    #cv2_show#('m1', mask1)
+    cv2_show('1', img)
+    cv2_show('m1', mask1)
+
     X = []
     for i in range(mask1.shape[0]):
         for j in range(mask1.shape[1]):
             if mask1[i, j] > 10:
                 X.append([i, j])
     X = np.array(X)
-    db = DBSCAN(eps=3, min_samples=5, metric='euclidean') # 密度聚类DBSCAN 半径，样本点数量，欧式距离
+    db = DBSCAN(eps=2, min_samples=5, metric='euclidean') # 密度聚类DBSCAN 半径，样本点数量，欧式距离
     y_db = db.fit_predict(X)
     num = {}
     for i in range(max(y_db)+1):
         num[i] = len(X[y_db==i, :])
-    print(num)
-    obj = None
-    for key,value in num.items():
-        if value == max(num.values()):
-            obj = int(key)
-    if obj is not None:
-        X_obj = X[y_db == obj, :]
-    else:
-        raise ValueError
+    num = dict(sorted(num.items(), key=lambda item: item[1], reverse=True))  # 对字典的值排序
+    print(num.keys())
+    X_obj = X[y_db == list(num.keys())[0], :]
     box = np.array([min(X_obj[:, 1]), min(X_obj[:, 0]), max(X_obj[:, 1]), max(X_obj[:, 0])]) # xmin, ymin, xmax, ymax
+    if (box[3]-box[1])/(box[2]-box[0]) > 2:
+        results['开关'] = 'i'
+    else: results['开关'] = 'o'
+    results['调度号'] = '430'
+    return results
+
+def img38_2(file_path):
+    img = cv2.imread(file_path)
+    f_xy = 0.2
+    img1 = cv2.resize(img.copy(), None, fx=f_xy, fy=f_xy)
+    img_gray = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+
+    hsv = cv2.cvtColor(img1, cv2.COLOR_BGR2HSV)  # 色彩空间转换为hsv，便于分离
+    lower_hsv1 = np.array([156, 43, 150]) # 提取颜色的低值 red [156, 43, 46]
+    high_hsv1 = np.array([180, 255, 255]) # 提取颜色的高值 [180, 255, 255]
+    lower_hsv2 = np.array([0, 43, 150]) # 提取颜色的低值 red [0, 43, 46]
+    high_hsv2 = np.array([10, 255, 255]) # 提取颜色的高值 [10, 255, 255]
+    mask_1 = cv2.inRange(hsv, lowerb=lower_hsv1, upperb=high_hsv1)
+    mask_2 = cv2.inRange(hsv, lowerb=lower_hsv2, upperb=high_hsv2)
+    mask1 = cv2.bitwise_or(mask_1, mask_2)
+    lower_hsv2 = np.array([0, 0, 0])  # 提取颜色的低值 black [0, 0, 0]
+    high_hsv2 = np.array([180, 255, 80])  # 提取颜色的高值 [180, 255, 46]
+    mask2 = cv2.inRange(hsv, lowerb=lower_hsv2, upperb=high_hsv2)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (20, 20))  # 定义结构元素的形状和大小
+    dst = cv2.dilate(mask1, kernel)  # 膨胀操作
+    mask_and = cv2.bitwise_and(dst, mask2)
+    cv2_show('1', mask1)
+    cv2_show('2', mask2)
+    cv2_show('m', mask_and)
+    print(mask_and.shape)
+    X = []
+    for i in range(mask_and.shape[0]):
+        for j in range(mask_and.shape[1]):
+            if mask_and[i, j] > 10:
+                X.append([i, j])
+    X = np.array(X)
+    db =DBSCAN(eps=3, min_samples=5, metric='euclidean')#密度聚类DBSCAN 半径，样本点数量，欧式距离
+    y_db = db.fit_predict(X)
+    num = {}
+    for i in range(max(y_db)+1):
+        num[i] = len(X[y_db==i, :])
+    num = dict(sorted(num.items(), key=lambda item: item[1], reverse=True)) # 对字典的值排序
+    X_obj1 = X[y_db == list(num.keys())[0], :]
+    X_obj2 = X[y_db == list(num.keys())[1], :]
+    print(X_obj1)
+    box = np.array([[min(X_obj1[:, 1]), min(X_obj1[:, 0]), max(X_obj1[:, 1]), max(X_obj1[:, 0])],
+                    [min(X_obj2[:, 1]), min(X_obj2[:, 0]), max(X_obj2[:, 1]), max(X_obj2[:, 0])]]) # xmin, ymin, xmax, ymax
     box = (box / f_xy).astype(np.int)
-    xy_b = int(0.06*(box[2]-box[0]))
-    img_obj = img[box[1]-xy_b:box[3]+xy_b, box[0]-xy_b:box[2]+xy_b]
     print(box)
-    #cv2_show#('3', img_obj)
-    # gray_obj = cv2.cvtColor(img_obj, cv2.COLOR_BGR2GRAY)
-    # ret1, mask2 = cv2.threshold(gray_obj, 0, 255, cv2.THRESH_OTSU) # 方法选择为THRESH_OTSU
-    # #cv2_show#('000', mask2) # 000
-    return  img_obj
+    img_objs = [] # ------------
+    lower_hsv1 = np.array([156, 43, 150]) # 提取颜色的低值 red [156, 43, 46]
+    high_hsv1 = np.array([180, 255, 255]) # 提取颜色的高值 [180, 255, 255]
+    lower_hsv2 = np.array([0, 43, 150]) # 提取颜色的低值 red [0, 43, 46]
+    high_hsv2 = np.array([10, 255, 255]) # 提取颜色的高值 [10, 255, 255]
+
+    img2 = img[box[0, 1]:box[0, 3], box[0, 0]:box[0, 2]]
+    hsv = cv2.cvtColor(img2, cv2.COLOR_BGR2HSV)  # 色彩空间转换为hsv，便于分离
+    mask_1 = cv2.inRange(hsv, lowerb=lower_hsv1, upperb=high_hsv1)
+    mask_2 = cv2.inRange(hsv, lowerb=lower_hsv2, upperb=high_hsv2)
+    mask1 = cv2.bitwise_or(mask_1, mask_2)
+    cv2_show('5', mask1)
+    X2 = []
+    for i in range(mask1.shape[0]):
+        for j in range(mask1.shape[1]):
+            if mask1[i, j] > 10:
+                X2.append([i, j])
+    X2 = np.array(X2)
+    box2 = np.array([min(X2[:, 1]), min(X2[:, 0]), max(X2[:, 1]), max(X2[:, 0])]) # xmin, ymin, xmax, ymax
+    img_obj2 = img2[box2[1]:box2[3], box2[0]:box2[2]]
+    cv2_show('5', img_obj2)
+    h, w = img_obj2.shape[:2]
+    x_b, y_b, y_h = 0.1*w, 0.1*h, (0.2*h+h)/3
+    box_img = []
+    for i in range(3):
+        box_img.append([box2[0]-x_b, box2[1]-y_b+i*y_h, box2[2]+x_b, box2[1]-y_b+(i+1)*y_h])
+    box_img = np.array(box_img).astype(np.int)
+    print(box_img)
+    for i in range(3):
+        char = img2[box_img[i, 1]:box_img[i, 3], box_img[i, 0]:box_img[i, 2]]
+        img_objs.append(char)
+
+    img2 = img[box[1, 1]:box[1, 3], box[1, 0]:box[1, 2]]
+    hsv = cv2.cvtColor(img2, cv2.COLOR_BGR2HSV)  # 色彩空间转换为hsv，便于分离
+    mask_1 = cv2.inRange(hsv, lowerb=lower_hsv1, upperb=high_hsv1)
+    mask_2 = cv2.inRange(hsv, lowerb=lower_hsv2, upperb=high_hsv2)
+    mask1 = cv2.bitwise_or(mask_1, mask_2)
+    cv2_show('6', mask1)
+    X2 = []
+    for i in range(mask1.shape[0]):
+        for j in range(mask1.shape[1]):
+            if mask1[i, j] > 10:
+                X2.append([i, j])
+    X2 = np.array(X2)
+    box2 = np.array([min(X2[:, 1]), min(X2[:, 0]), max(X2[:, 1]), max(X2[:, 0])]) # xmin, ymin, xmax, ymax
+    img_obj2 = img2[box2[1]:box2[3], box2[0]:box2[2]]
+    cv2_show('5', img_obj2)
+    h, w = img_obj2.shape[:2]
+    x_b, y_b, y_h = 0.1*w, 0.1*h, (0.2*h+h)/3
+    box_img = []
+    for i in range(3):
+        box_img.append([box2[0]-x_b, box2[1]-y_b+i*y_h, box2[2]+x_b, box2[1]-y_b+(i+1)*y_h])
+    box_img = np.array(box_img).astype(np.int)
+    for i in range(3):
+        char = img2[box_img[i, 1]:box_img[i, 3], box_img[i, 0]:box_img[i, 2]]
+        img_objs.append(char)
+
+    return  img_objs
 
 def Point_thirty_eight(file_name1, file_name2):
     Point_info = []
-    results1 = img38_1(file_name1)
-    result_imgs = img38_2(file_name2)
-    #cv2_show#('result', result_imgs)
-    # results1['电流'] = dispatchNum_recog(result_imgs)
-    print(results1)
-    Point_list = list(results1.values())
-    print("point_38:",Point_list)
+    result = {}
+    result = img38_1(file_name1)
+    print(result)
+    Point_list = list(result.values())
+    print(Point_list)
+    return Point_list
+    # result_imgs = img38_2(file_name1)
+    # for i in range(len(result_imgs)):
+    #     cv2_show('obj{}'.format(i), result_imgs[i])
+    #     results[i] = dispatchNum_recog(result_imgs[i])
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
 
-    return Point_list
-
 if __name__ == '__main__':
-    img1_path = './images3/38-1.JPG'
-    img2_path = './images3/38-2.JPG'
-    results1 = img38_1(img1_path)
-    print(results1)
-    results2 = img38_2(img2_path)
-    #cv2_show#('result', results2)
+    img1_path = '/home/jinyan/桌面/getpic/22_16_54_270.jpg' # Need to modify!!
+    img2_path = './images3/40-2.JPG' # Need to modify!!
+    results = {}
+    result = img38_1(img1_path)
+    print(result)
+    result_imgs = img38_2(img2_path)
+    for i in range(len(result_imgs)):
+        cv2_show('obj{}'.format(i), result_imgs[i])
     cv2.waitKey(0)
     cv2.destroyAllWindows()

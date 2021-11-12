@@ -28,8 +28,8 @@ def img33_1(file_path):
     mask_2 = cv2.inRange(hsv, lowerb=lower_hsv2, upperb=high_hsv2)
     mask2 = cv2.bitwise_or(mask_1, mask_2)
     mask3 = cv2.bitwise_or(mask1, mask2)
-    #cv2_show#('1', img)
-    #cv2_show#('m1', mask3)
+    cv2_show('1', img)
+    cv2_show('m1', mask3)
     X = []
     for i in range(mask3.shape[0]):
         for j in range(mask3.shape[1]):
@@ -77,8 +77,8 @@ def img33_1(file_path):
                 if mask1[i, j] > 10:  # y x
                     X.append([i, j])
         X = np.array(X)
+        results['{}路调度号'.format(m + 1)] = str(419 + m)
         if len(X)==0:
-            results['{}路调度号'.format(m + 1)] = '41{}'.format(m + 1)
             results['{}路合分闸指示'.format(m + 1)] = '红色'
             results['{}路开关'.format(m + 1)] = 'i'
             continue
@@ -90,12 +90,13 @@ def img33_1(file_path):
         num = dict(sorted(num.items(), key=lambda item: item[1], reverse=True))  # 对字典的值排序
         print(num)
         if len(num)==0:
-            results['{}路调度号'.format(m + 1)] = '41{}'.format(m + 1)
             results['{}路合分闸指示'.format(m + 1)] = '红色'
             results['{}路开关'.format(m + 1)] = 'i'
             continue
-        results['{}路调度号'.format(m + 1)] = '41{}'.format(m+1)
-        if list(num.values())[0] > 200:
+        for i in range(max(y_db) + 1):
+            num[i] = len(X[y_db == i, :])
+        num = dict(sorted(num.items(), key=lambda item: item[1], reverse=True))  # 对字典的值排序
+        if num[list(num.keys())[0]] > 200:
             results['{}路合分闸指示'.format(m + 1)] = '绿色'
             results['{}路开关'.format(m + 1)] = 'o'
         else:
@@ -109,9 +110,9 @@ def img33_2(file_path):
     f_xy = 0.2
     img1 = cv2.resize(img.copy(), None, fx=f_xy, fy=f_xy)
     hsv = cv2.cvtColor(img1, cv2.COLOR_BGR2HSV)  # 色彩空间转换为hsv，便于分离
-    lower_hsv1 = np.array([156, 43, 46]) # 提取颜色的低值 red [156, 43, 46]
+    lower_hsv1 = np.array([156, 60, 100]) # 提取颜色的低值 red [156, 43, 46]
     high_hsv1 = np.array([180, 255, 255]) # 提取颜色的高值 [180, 255, 255]
-    lower_hsv2 = np.array([0, 43, 46]) # 提取颜色的低值 red [0, 43, 46]
+    lower_hsv2 = np.array([0, 60, 100]) # 提取颜色的低值 red [0, 43, 46]
     high_hsv2 = np.array([10, 255, 255]) # 提取颜色的高值 [10, 255, 255]
     mask_1 = cv2.inRange(hsv, lowerb=lower_hsv1, upperb=high_hsv1)
     mask_2 = cv2.inRange(hsv, lowerb=lower_hsv2, upperb=high_hsv2)
@@ -119,8 +120,8 @@ def img33_2(file_path):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))  # 定义结构元素的形状和大小
     mask1 = cv2.dilate(mask1, kernel) # 膨胀操作
     mask1 = cv2.erode(mask1, kernel) # 腐蚀操作
-    #cv2_show#('1', img)
-    #cv2_show#('m1', mask1)
+    cv2_show('1', img)
+    cv2_show('m1', mask1)
     X = []
     for i in range(mask1.shape[0]):
         for j in range(mask1.shape[1]):
@@ -145,31 +146,31 @@ def img33_2(file_path):
     box = (box / f_xy).astype(np.int)
     xy_b = int(0.06*(box[2]-box[0]))
     img_obj = img[box[1]-xy_b:box[3]+xy_b, box[0]-xy_b:box[2]+xy_b]
-    #cv2_show#('3', img_obj)
+    print(box)
+    cv2_show('3', img_obj)
     # gray_obj = cv2.cvtColor(img_obj, cv2.COLOR_BGR2GRAY)
     # ret1, mask2 = cv2.threshold(gray_obj, 0, 255, cv2.THRESH_OTSU) # 方法选择为THRESH_OTSU
-    # #cv2_show#('000', mask2) # 000
-    return img_obj
+    # cv2_show('000', mask2) # 000
+    return  img_obj
 
 def Point_thirty_three(file_name1, file_name2):
     Point_info = []
     results1 = img33_1(file_name1)
-    # result_imgs = img33_2(img1_path)
-    # #cv2_show#('result', result_imgs)
+    # result_imgs = img33_2(file_name2)
+    # cv2_show('result', result_imgs)
     # results1['电流'] = dispatchNum_recog(result_imgs)
     print(results1)
     Point_list = list(results1.values())
-    print("point_33:",Point_list)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    print(Point_list)
     return Point_list
 
+
 if __name__ == '__main__':
-    img1_path = './images2/33-1.JPG'
-    img2_path = './images2/33-2.JPG'
+    img1_path = './images3/35-1.JPG' # Need to modify!!
+    img2_path = './images3/35-2.JPG' # Need to modify!!
     results1 = img33_1(img1_path)
-    result_imgs = img33_2(img2_path)
-    #cv2_show#('result', result_imgs)
     print(results1)
+    results2 = img33_2(img2_path)
+    cv2_show('result', results2)
     cv2.waitKey(0)
     cv2.destroyAllWindows()

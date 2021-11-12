@@ -343,6 +343,7 @@ def Point_twenty_six(img_path, code_info):
     img2 = img[:, img.shape[1] // 4:img.shape[1] // 4 * 3]
     Point_list = []
     Point_list.append([' '])
+    print(Point_list)
     return tran(Point_list)
 
 

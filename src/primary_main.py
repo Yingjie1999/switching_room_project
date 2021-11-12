@@ -4,6 +4,7 @@ import shutil
 import tofile
 import cv2
 import numpy as np
+import pymssql
 import code_recog
 import meas_point_1
 import meas_point_2
@@ -98,9 +99,10 @@ switcher = {
 }
 # 根据flag的值决定执行哪一个函数，如果输入的值在字典中没有，则执行get_default函数
 
-if __name__ == '__main__':
+def total_recogntion():
+# if __name__ == '__main__':
     file_path = 'C:/Users/SONG/Desktop/image6/'
-    excel_save_path = 'D:/10-29.xls'
+    excel_save_path = 'C:/Users/SONG/Desktop/copy/test.xls'
     dstpath = 'C:/Users/SONG/Desktop/copy/'
     file_list = code_recog.getfileorder(file_path)
     Total_list = []
@@ -141,19 +143,19 @@ if __name__ == '__main__':
             if len1 <= len2:
                 output_list.pop(i+1-pop_num)
                 pop_num += 1
-                print(pop_num)
-                tofile.copy_and_move(file_path + file_list[i], dstpath, Total_list[i][-1]+'.jpg')
+                # print(pop_num)
+                tofile.copy_and_move(file_path + file_list[i], dstpath, Total_list[i][-1]+'-1.jpg')
             else:
                 output_list.pop(i-pop_num)
                 pop_num += 1
-                print(pop_num)
-                tofile.copy_and_move(file_path + file_list[i+1], dstpath, Total_list[i+1][-1]+'.jpg')
+                # print(pop_num)
+                tofile.copy_and_move(file_path + file_list[i+1], dstpath, Total_list[i+1][-1]+'-1.jpg')
 
         elif Total_list[i][0] == '1':
-            output_list[i].pop(0)
+            output_list[i-pop_num].pop(0)
 
         elif Total_list[i][0] == '2':
-            print('222222')
+            # print('222222')
             output_list[i-1-pop_num].pop(-1)
             output_list[i-pop_num].pop(0)
             output_list[i-1-pop_num] += output_list[i-pop_num]
@@ -162,7 +164,7 @@ if __name__ == '__main__':
             print(pop_num)
             print(output_list)
             if Total_list[i+1][0] == '3':
-                print('33332')
+                # print('33332')
                 output_list[i - pop_num].pop(-1)
                 output_list[i + 1 - pop_num].pop(0)
                 output_list[i - pop_num] += output_list[i + 1 - pop_num]
@@ -170,14 +172,16 @@ if __name__ == '__main__':
                 pop_num += 1
                 print(pop_num)
         elif Total_list[i][-1] == ' ':
-            output_list.pop(i)
+            output_list.pop(i-pop_num)
             pop_num += 1
         else:
-            tofile.copy_and_move(file_path + file_list[i], dstpath, Total_list[i][-1]+'.jpg')
+            tofile.copy_and_move(file_path + file_list[i], dstpath, Total_list[i][-1]+'-1.jpg')
 
 
     output_list.sort(key=lambda x: int(x[-1]), reverse=False)
+    # for i in range(len(output_list)):
+    #     output_list[i].pop(-1)
     print("output_list:", output_list)
-    toexcel.write_file(output_list, excel_save_path)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # toexcel.write_file(output_list, excel_save_path)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()

@@ -426,4 +426,5 @@ def Point_twenty_seven(img_path, code_info):
     default_list = ['亮', '灭', '亮', '灭', '灭', '灭', '灭', '灭', '灭', '灭', '灭', '灭', '灭',
                     '灭', '灭', '灭', '灭', '灭', '灭', '灭', '灭','亮', '灭',]
     Point_list = default_list
+    print(Point_list)
     return Point_list

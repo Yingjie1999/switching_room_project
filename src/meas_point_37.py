@@ -14,6 +14,10 @@ def cv2_show(name, img_):
 
 def img37_1(file_path):
     img = cv2.imread(file_path)
+    h, w = img.shape[:2]
+    box = np.array([0.25*w, 0, 0.75*w, h]).astype(np.int) # xmin, ymin, xmax, ymax
+    img = img[box[1]:box[3], box[0]:box[2]]
+    cv2_show('img', img)
     f_xy = 0.2
     img1 = cv2.resize(img.copy(), None, fx=f_xy, fy=f_xy)
     hsv = cv2.cvtColor(img1, cv2.COLOR_BGR2HSV)  # 色彩空间转换为hsv，便于分离
@@ -28,8 +32,8 @@ def img37_1(file_path):
     mask_2 = cv2.inRange(hsv, lowerb=lower_hsv2, upperb=high_hsv2)
     mask2 = cv2.bitwise_or(mask_1, mask_2)
     mask3 = cv2.bitwise_or(mask1, mask2)
-    #cv2_show#('1', img)
-    #cv2_show#('m1', mask3)
+    cv2_show('1', img)
+    cv2_show('m1', mask3)
     X = []
     for i in range(mask3.shape[0]):
         for j in range(mask3.shape[1]):
@@ -77,7 +81,7 @@ def img37_1(file_path):
                 if mask1[i, j] > 10:  # y x
                     X.append([i, j])
         X = np.array(X)
-        results['{}路调度号'.format(m + 1)] = str(431 + m)  # ----1----
+        results['{}路调度号'.format(m + 1)] = str(439 + m)
         if len(X)==0:
             results['{}路合分闸指示'.format(m + 1)] = '红色'
             results['{}路开关'.format(m + 1)] = 'i'
@@ -117,8 +121,8 @@ def img37_2(file_path):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))  # 定义结构元素的形状和大小
     mask1 = cv2.dilate(mask1, kernel) # 膨胀操作
     mask1 = cv2.erode(mask1, kernel) # 腐蚀操作
-    #cv2_show#('1', img)
-    #cv2_show#('m1', mask1)
+    cv2_show('1', img)
+    cv2_show('m1', mask1)
     X = []
     for i in range(mask1.shape[0]):
         for j in range(mask1.shape[1]):
@@ -144,32 +148,29 @@ def img37_2(file_path):
     xy_b = int(0.06*(box[2]-box[0]))
     img_obj = img[box[1]-xy_b:box[3]+xy_b, box[0]-xy_b:box[2]+xy_b]
     print(box)
-    #cv2_show#('3', img_obj)
+    cv2_show('3', img_obj)
     # gray_obj = cv2.cvtColor(img_obj, cv2.COLOR_BGR2GRAY)
     # ret1, mask2 = cv2.threshold(gray_obj, 0, 255, cv2.THRESH_OTSU) # 方法选择为THRESH_OTSU
-    # #cv2_show#('000', mask2) # 000
-    return img_obj
+    # cv2_show('000', mask2) # 000
+    return  img_obj
 
 def Point_thirty_seven(file_name1, file_name2):
     Point_info = []
     results1 = img37_1(file_name1)
-    result_imgs = img37_2(file_name2)
-    #cv2_show#('result', result_imgs)
+    # result_imgs = img37_2(file_name2)
+    # cv2_show('result', result_imgs)
     # results1['电流'] = dispatchNum_recog(result_imgs)
     print(results1)
     Point_list = list(results1.values())
-    print("point_list",Point_list)
-
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    print(Point_list)
     return Point_list
 
 if __name__ == '__main__':
-    img1_path = './images3/37-1.JPG'
-    img2_path = './images3/37-2.JPG'
+    img1_path = './images3/39-1.JPG' # Need to modify!!
+    img2_path = './images3/39-2.JPG' # Need to modify!!
     results1 = img37_1(img1_path)
     print(results1)
     results2 = img37_2(img2_path)
-    #cv2_show#('result', results2)
+    cv2_show('result', results2)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
