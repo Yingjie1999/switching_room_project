@@ -1,7 +1,7 @@
 import socket
 import sys
-# address = ('122.9.48.168', 5005)  # 服务端地址和端口
-address = ('127.0.0.1', 5005)  # 服务端地址和端口
+address = ('122.9.48.168', 5005)  # 服务端地址和端口
+# address = ('127.0.0.1', 5005)  # 服务端地址和端口
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 try:
     s.connect(address)  # 尝试连接服务端

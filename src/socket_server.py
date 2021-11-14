@@ -3,8 +3,8 @@ import traceback
 
 import primary_main
 
-# address = ('0.0.0.0', 5005)  # 服务端地址和端口
-address = ('127.0.0.1', 5005)  # 服务端地址和端口
+address = ('0.0.0.0', 5005)  # 服务端地址和端口
+# address = ('127.0.0.1', 5005)  # 服务端地址和端口
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(address)  # 绑定服务端地址和端口
 s.listen(5)
@@ -16,9 +16,11 @@ while True:
     if not data:
         break
     print('[Received]', data)
-    if data == ("ready"):
+    if len(data)>=33:
         try:
-            primary_main.total_recogntion()
+            print("开始识别！")
+            primary_main.total_recogntion(data)
+            print("识别结束！")
         except Exception as e:
             traceback.print_exc()
     # send = input('Input: ')

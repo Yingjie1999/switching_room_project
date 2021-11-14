@@ -35,12 +35,13 @@ def ocr_qrcode_zxing(filename):
         data = zxdata
     else:
         logger.error(u'识别zxing二维码出错:%s' % (filename))
-        img.save('%s-zxing.jpg' % filename)
+        # img.save('%s-zxing.jpg' % filename)       #取消保存
     return data  # 返回记录的内容
 
 
 def getfileorder(file_path):
     files = os.listdir(file_path)
+    files.remove('result')
     files.sort(key=lambda x: int(x.split('.')[0]))
     print(files)
     return files
@@ -52,7 +53,7 @@ if __name__ == "__main__" :
     # file_list = getfileorder(file_path)
     # print(len(getfileorder(file_path)))
 
-    file_name = 'C:\\Users\\SONG\\Desktop\\image5\\22_13_49_770.jpg'
+    file_name = 'C:\\Users\\SONG\\Desktop\\image6\\22_16_29_150.jpg'
     # zxing二维码识别，界面中只能有一个二维码
     ltext = ocr_qrcode_zxing(file_name)  # 将图片文件里的信息转码放到ltext里面
     # logger.info(u'[%s]Zxing二维码识别:[%s]!!!' % (filename, ltext))  # 记录文本信息

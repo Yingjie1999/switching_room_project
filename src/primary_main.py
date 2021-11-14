@@ -1,4 +1,5 @@
 import copy
+import os
 import toexcel
 import shutil
 import tofile
@@ -97,13 +98,47 @@ switcher = {
 
     # 3: get_function_3
 }
-# 根据flag的值决定执行哪一个函数，如果输入的值在字典中没有，则执行get_default函数
 
-def total_recogntion():
+
+def mkdir(path):
+    folder = os.path.exists(path)
+
+    if not folder:  # 判断是否存在文件夹如果不存在则创建为文件夹
+        os.makedirs(path)  # makedirs 创建文件时如果路径不存在会创建这个路径
+        print
+        "---  new folder...  ---"
+        print
+        "---  OK  ---"
+
+    else:
+        print
+        "---  There is this folder!  ---"
+
+#
+# file = "G:\\xxoo\\test"
+# mkdir(file)  # 调用函数
+
+# 根据flag的值决定执行哪一个函数，如果输入的值在字典中没有，则执行get_default函数
+def modify_file_path(file_path):
+    print(file_path[0:33])
+    if file_path[0:33] == 'https://slive.ploughuav.com:65455':
+        # print('1111')
+        file_path_out = file_path.replace('https://slive.ploughuav.com:65455', 'D:/beijingImg')
+    print(file_path_out)
+    return file_path_out
+
+def total_recogntion(file_path):
 # if __name__ == '__main__':
+    # file_path = modify_file_path(file_path)
+
     file_path = 'C:/Users/SONG/Desktop/image6/'
-    excel_save_path = 'C:/Users/SONG/Desktop/copy/test.xls'
-    dstpath = 'C:/Users/SONG/Desktop/copy/'
+    file_path2 = file_path + 'result/'
+    # file_path3 = file_path2.replace('/', '\\')
+    # print(file_path3)
+    # file_path3 = "C:\\Users\\SONG\\Desktop\\image6\\result"
+    mkdir(file_path2)
+    excel_save_path = file_path + 'result/test.xls'
+    dstpath = file_path + 'result/'
     file_list = code_recog.getfileorder(file_path)
     Total_list = []
     showpic_num = 0
@@ -182,6 +217,10 @@ def total_recogntion():
     # for i in range(len(output_list)):
     #     output_list[i].pop(-1)
     print("output_list:", output_list)
-    # toexcel.write_file(output_list, excel_save_path)
+    toexcel.write_file(output_list, excel_save_path)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
+
+# if  __name__ == '__main__':
+#     file_path = 'https://slive.ploughuav.com:65455/Img/192.168.144.160/copy/'
+#     modify_file_path(file_path)

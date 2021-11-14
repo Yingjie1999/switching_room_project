@@ -6,7 +6,7 @@ import xlrd
 
 def write_file(list, excel_save_path):
 
-    flile_name = "C:\\Users\\SONG\\Desktop\\temple2.xlsx"
+    flile_name = "./doc/temple2.xlsx"
     # 读取源excel
     xlsx = xlrd.open_workbook(flile_name)
 
